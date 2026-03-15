@@ -1,0 +1,17 @@
+pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu130
+pip install librosa pandas tqdm pretty_midi matplotlib
+pip install PySide6
+pip install torchaudio 
+pip install torchcodec
+pip install soundfile
+pip install h5py
+pip install omegaconf
+pip install qdarkstyle
+pip install pyaudio
+pip install coloredlogs
+pip install torchinfo
+pip install pytz 
+pip install scipy
+pip install mir_eval
+pip install tensorboard
+pip install piano_transcription_inference
