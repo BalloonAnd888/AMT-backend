@@ -10,7 +10,7 @@ PyTorch building blocks.
 import torch
 from torch import nn
 #
-from amtgui.utils import init_weights
+from models.onsetsandvelocities.utils import init_weights
 
 
 # ##############################################################################

@@ -12,7 +12,7 @@ import torch
 from torch import nn
 from models.onsetsandvelocities.building_blocks import get_relu, SubSpectralNorm, Permuter
 from models.onsetsandvelocities.building_blocks import ContextAwareModule, DepthwiseConv2d, conv1x1net
-from amtgui.utils import init_weights
+from models.onsetsandvelocities.utils import init_weights
 
 
 # ##############################################################################
