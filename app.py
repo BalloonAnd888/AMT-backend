@@ -6,8 +6,16 @@ import matplotlib.pyplot as plt
 import io
 from PIL import Image
 import os
+import urllib.request
+import numpy as np
+import tempfile
+from mir_eval.util import midi_to_hz
 from preprocessing.mel import MelSpectrogram
-from preprocessing.constants import SAMPLE_RATE, HOP_LENGTH
+from preprocessing.constants import SAMPLE_RATE, HOP_LENGTH, N_MELS, N_KEYS, MIN_MIDI
+from models.onsetsandframes.of import OnsetsAndFrames
+from models.onsetsandframes.decoding import extract_notes
+from models.onsetsandframes.midi import save_midi
+from models.pianotranscriptionbytedance.inference import PianoTranscription
 
 MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "modelFiles")
 
@@ -48,14 +56,16 @@ def process_audio(audio_path, model_choice):
     if audio_path is None:
         return None, None
         
-    y, sr = librosa.load(audio_path, sr=SAMPLE_RATE)
-    audio_tensor = torch.from_numpy(y)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     
-    mel_spectrogram = MelSpectrogram()
+    y, sr = librosa.load(audio_path, sr=SAMPLE_RATE)
+    audio_tensor = torch.from_numpy(y).to(device)
+    
+    mel_spectrogram = MelSpectrogram().to(device)
 
     log_mel = mel_spectrogram(audio_tensor)
         
-    S = log_mel.squeeze().numpy()
+    S = log_mel.squeeze().cpu().numpy()
     
     fig, ax = plt.subplots(figsize=(10, 4))
     img = librosa.display.specshow(S, sr=SAMPLE_RATE, hop_length=HOP_LENGTH, x_axis='time', y_axis='mel', ax=ax)
@@ -68,8 +78,60 @@ def process_audio(audio_path, model_choice):
     buf.seek(0)
     plt.close(fig)
     
-    # Return the spectrogram image and None for the MIDI file output
-    return Image.open(buf), None
+    mel_image = Image.open(buf)
+    midi_file_path = None
+    model_path = MODELS[model_choice]["path"]
+    
+    if model_choice == "of":
+        model = OnsetsAndFrames(
+            input_features=N_MELS, 
+            output_features=N_KEYS, 
+            model_complexity=48).to(device)
+            
+        if os.path.exists(model_path):
+            model.load_state_dict(torch.load(model_path, map_location=device))
+        else:
+            print(f"Warning: Model file not found at {model_path}")
+            
+        model.eval()
+        with torch.no_grad():
+            onset_pred, offset_pred, _, frame_pred, velocity_pred = model(log_mel)
+            
+        p_est, i_est, v_est = extract_notes(
+            onset_pred.squeeze(0), 
+            frame_pred.squeeze(0), 
+            velocity_pred.squeeze(0)
+        )
+        
+        scaling = HOP_LENGTH / SAMPLE_RATE
+        i_est = (i_est * scaling).reshape(-1, 2)
+        p_est = np.array([midi_to_hz(MIN_MIDI + midi) for midi in p_est])
+        
+        temp_midi = tempfile.NamedTemporaryFile(delete=False, suffix=".mid")
+        midi_file_path = temp_midi.name
+        temp_midi.close()
+        
+        save_midi(midi_file_path, p_est, i_est, v_est)
+        print(f"Saved results to {midi_file_path}")
+        
+    elif model_choice == "high_resolution":
+        try:
+            if not os.path.exists(model_path):
+                print(f"Downloading checkpoint to {model_path}")
+                os.makedirs(os.path.dirname(model_path), exist_ok=True)
+                urllib.request.urlretrieve('https://zenodo.org/record/4034264/files/CRNN_note_F1%3D0.9677_pedal_F1%3D0.9186.pth', model_path)
+
+            temp_midi = tempfile.NamedTemporaryFile(delete=False, suffix=".mid")
+            midi_file_path = temp_midi.name
+            temp_midi.close()
+            
+            hr_audio, _ = librosa.load(audio_path, sr=16000, mono=True)
+            transcriptor = PianoTranscription(device=device, checkpoint_path=model_path)
+            transcriptor.transcribe(hr_audio, midi_file_path)
+        except Exception as e:
+            print(f"ByteDance High Resolution module failed: {e}")
+
+    return mel_image, midi_file_path
 
 # Build dropdown choices as a list of (label, value) tuples for Gradio
 dropdown_choices = [(model["name"], key) for key, model in MODELS.items()]
