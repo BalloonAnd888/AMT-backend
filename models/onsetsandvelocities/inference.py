@@ -1,14 +1,18 @@
 import os
 import random
 import torch
+import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import numpy as np
 import librosa
 import librosa.display
+from mir_eval.util import midi_to_hz
 from torchinfo import summary
 
 from models.onsetsandvelocities.ov import OnsetsAndVelocities
-from preprocessing.constants import DATA_PATH, N_KEYS, SEQUENCE_LENGTH, SAMPLE_RATE, HOP_LENGTH, MEL_FMIN, MEL_FMAX, N_MELS
+from models.onsetsandvelocities.decoder import OnsetVelocityNmsDecoder
+from models.onsetsandframes.midi import save_midi
+from preprocessing.constants import DATA_PATH, N_KEYS, SEQUENCE_LENGTH, SAMPLE_RATE, HOP_LENGTH, MEL_FMIN, MEL_FMAX, N_MELS, MIN_MIDI
 from preprocessing.dataset import MAESTRO
 from preprocessing.mel import MelSpectrogram
 
@@ -20,7 +24,7 @@ LEAKY_RELU_SLOPE = 0.1
 DROPOUT = 0.15
 IN_CHANS = 2
 
-def inference(model_path):
+def inference(model_path, audio_path=None):
     print(f"Device: {DEVICE}")
 
     # 1. Load Model
@@ -45,23 +49,34 @@ def inference(model_path):
     model.eval()
     mel_extractor = MelSpectrogram().to(DEVICE)
 
-    # 2. Load Dataset
-    # Using 'test' group
-    test_dataset = MAESTRO(path=DATA_PATH, groups=['test'], sequence_length=SEQUENCE_LENGTH)
-    
-    if len(test_dataset) == 0:
-        print("ERROR: Test dataset is empty.")
-        return
+    if audio_path:
+        print(f"Inference on audio file: {audio_path}")
+        idx = os.path.splitext(os.path.basename(audio_path))[0]
+        audio, _ = librosa.load(audio_path, sr=SAMPLE_RATE)
+        audio = torch.tensor(audio).to(DEVICE)
+        batch = {
+            'audio': audio.unsqueeze(0)
+        }
+        onset_target = None
+        velocity_target = None
+    else:
+        # 2. Load Dataset
+        # Using 'test' group
+        test_dataset = MAESTRO(path=DATA_PATH, groups=['test'], sequence_length=SEQUENCE_LENGTH)
+        
+        if len(test_dataset) == 0:
+            print("ERROR: Test dataset is empty.")
+            return
 
-    # 3. Get Random Sample
-    idx = random.randint(0, len(test_dataset) - 1)
-    print(f"Visualizing sample index: {idx}")
+        # 3. Get Random Sample
+        idx = random.randint(0, len(test_dataset) - 1)
+        print(f"Visualizing sample index: {idx}")
 
-    sample = test_dataset[idx]
-    audio = sample['audio'].to(DEVICE) # (Samples)
-    # Targets are (Time, Keys)
-    onset_target = sample['onset'].to(DEVICE).float() 
-    velocity_target = sample['velocity'].to(DEVICE).float()
+        sample = test_dataset[idx]
+        audio = sample['audio'].to(DEVICE) # (Samples)
+        # Targets are (Time, Keys)
+        onset_target = sample['onset'].to(DEVICE).float() 
+        velocity_target = sample['velocity'].to(DEVICE).float()
 
     # 4. Prepare Input
     # Mel extractor expects (Batch, Samples)
@@ -84,7 +99,36 @@ def inference(model_path):
         pred_onset_probs = torch.sigmoid(pred_onset_logits)
         pred_vel_probs = torch.sigmoid(pred_vel_logits)
 
-    # 5. Visualization Preparation
+    # 5. MIDI Generation
+    decoder = OnsetVelocityNmsDecoder(
+        num_keys=N_KEYS,
+        nms_pool_ksize=3,
+        gauss_conv_stddev=1.0,
+        vel_pad_left=1,
+        vel_pad_right=1
+    ).to(DEVICE)
+
+    # Pad to match original time steps (T-1 -> T)
+    probs = F.pad(pred_onset_probs, (1, 0))
+    vels = F.pad(pred_vel_probs, (1, 0))
+    df = decoder(probs, vels, pthresh=0.5)
+
+    print(df)
+
+    # if not df.empty:
+    #     pitches = np.array([midi_to_hz(MIN_MIDI + k) for k in df["key"].values])
+    #     scaling = HOP_LENGTH / SAMPLE_RATE
+    #     onsets = df["t_idx"].values * scaling
+    #     intervals = np.column_stack([onsets, onsets + 0.1])
+    #     velocities = df["vel"].values # save_midi expects 0-1 range and scales to 127
+        
+    #     results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'results')
+    #     os.makedirs(results_dir, exist_ok=True)
+    #     midi_path = os.path.join(results_dir, f'sample_{idx}_pred.mid')
+    #     save_midi(midi_path, pitches, intervals, velocities)
+    #     print(f"Saved MIDI to {midi_path}")
+
+    # 6. Visualization Preparation
     mel_np = mel.squeeze(0).cpu().numpy()
     
     # Targets need to be transposed to (Keys, Time) for specshow

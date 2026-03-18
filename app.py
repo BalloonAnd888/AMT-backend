@@ -4,6 +4,7 @@ import librosa
 import librosa.display
 import matplotlib.pyplot as plt
 import io
+import torch.nn.functional as F
 from PIL import Image
 import os
 import urllib.request
@@ -16,6 +17,9 @@ from models.onsetsandframes.of import OnsetsAndFrames
 from models.onsetsandframes.decoding import extract_notes
 from models.onsetsandframes.midi import save_midi
 from models.pianotranscriptionbytedance.inference import PianoTranscription
+from models.onsetsandvelocities.ov import OnsetsAndVelocities
+from models.onsetsandvelocities.decoder import OnsetVelocityNmsDecoder
+from models.ov.inference import strided_inference
 
 MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "modelFiles")
 
@@ -82,7 +86,59 @@ def process_audio(audio_path, model_choice):
     midi_file_path = None
     model_path = MODELS[model_choice]["path"]
     
-    if model_choice == "of":
+    if model_choice == "ov":
+        model = OnsetsAndVelocities(
+            in_chans=2,
+            in_height=N_MELS,
+            out_height=N_KEYS,
+            conv1x1head=(200, 200),
+            bn_momentum=0,
+            leaky_relu_slope=0.1,
+            dropout_drop_p=0
+        ).to(device)
+
+        if os.path.exists(model_path):
+            model.load_state_dict(torch.load(model_path, map_location=device))
+        else:
+            print(f"Warning: Model file not found at {model_path}")
+
+        model.eval()
+        decoder = OnsetVelocityNmsDecoder(
+            num_keys=N_KEYS,
+            nms_pool_ksize=3,
+            gauss_conv_stddev=1.0,
+            gauss_conv_ksize=11,
+            vel_pad_left=1,
+            vel_pad_right=1
+        ).to(device)
+
+        mel_input = log_mel if log_mel.dim() == 3 else log_mel.unsqueeze(0)
+        
+        def model_wrapper(x):
+            with torch.no_grad():
+                pred_onset_stack, pred_vels = model(x, trainable_onsets=False)
+                # Pad back to T instead of T-1 for strided inference assertion
+                probs_pad = F.pad(torch.sigmoid(pred_onset_stack[-1]), (1, 0))
+                vels_pad = F.pad(torch.sigmoid(pred_vels), (1, 0))
+                return [probs_pad, vels_pad]
+                
+        probs, vels = strided_inference(model_wrapper, mel_input, chunk_size=10000, chunk_overlap=100)
+        probs = probs.to(device)
+        vels = vels.to(device)
+        df = decoder(probs, vels, pthresh=0.5)
+
+        if not df.empty:
+            pitches = np.array([midi_to_hz(MIN_MIDI + k) for k in df["key"].values])
+            scaling = HOP_LENGTH / SAMPLE_RATE
+            onsets = df["t_idx"].values * scaling
+            intervals = np.column_stack([onsets, onsets + 0.1])
+            velocities = df["vel"].values
+            temp_midi = tempfile.NamedTemporaryFile(delete=False, suffix=".mid")
+            midi_file_path = temp_midi.name
+            temp_midi.close()
+            save_midi(midi_file_path, pitches, intervals, velocities)
+        print(f"Saved results to {midi_file_path}")
+    elif model_choice == "of":
         model = OnsetsAndFrames(
             input_features=N_MELS, 
             output_features=N_KEYS, 
