@@ -9,7 +9,7 @@ from matplotlib.ticker import FuncFormatter
 from typing import List
 
 from models.onsetsandvelocities.ov import OnsetsAndVelocities
-from models.ov.inference import strided_inference, OnsetVelocityNmsDecoder
+from models.onsetsandvelocities.inference import strided_inference, OnsetVelocityNmsDecoder
 from preprocessing.constants import (SEQUENCE_LENGTH, DATA_PATH, N_KEYS, N_MELS,
                                      SAMPLE_RATE, HOP_LENGTH, MEL_FMIN, MEL_FMAX)
 from preprocessing.dataset import MAESTRO

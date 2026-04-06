@@ -9,16 +9,15 @@ This module hosts the main DNNs, making use of PyTorch built-ins and parts from
 
 
 import torch
-from torch import nn
-from models.onsetsandvelocities.building_blocks import get_relu, SubSpectralNorm, Permuter
-from models.onsetsandvelocities.building_blocks import ContextAwareModule, DepthwiseConv2d, conv1x1net
-from models.onsetsandvelocities.utils import init_weights
+from .building_blocks import get_relu, SubSpectralNorm, Permuter
+from .building_blocks import ContextAwareModule, DepthwiseConv2d, conv1x1net
+from .utils import init_weights
 
 
 # ##############################################################################
 # # MAIN MODEL
 # ##############################################################################
-class OnsetsAndVelocities(nn.Module):
+class OnsetsAndVelocities(torch.nn.Module):
     """
     Model from 'Onsets and Velocities: Affordable Real-Time Piano Transcription
     Using Convolutional Neural Networks' (Fernandez, 2023).
@@ -70,25 +69,25 @@ class OnsetsAndVelocities(nn.Module):
         5. Swap channels with height, and return result
         """
         cam_out_chans = cam_hdc_chans * len(cam_ksizes)
-        cam = nn.Sequential(
+        cam = torch.nn.Sequential(
             # from (b, in, h, t) to (b, cam_out, h, t)
-            nn.Conv2d(in_chans, cam_out_chans, (1, 1),
+            torch.nn.Conv2d(in_chans, cam_out_chans, (1, 1),
                             padding=(0, 0), bias=False),
-            nn.BatchNorm2d(cam_out_chans, momentum=bn_momentum),
+            torch.nn.BatchNorm2d(cam_out_chans, momentum=bn_momentum),
             get_relu(leaky_relu_slope),
-            *[nn.Sequential(
+            *[torch.nn.Sequential(
                 # shape-preserving
                 ContextAwareModule(
                     cam_out_chans, cam_hdc_chans, cam_se_bottleneck,
                     cam_ksizes, cam_dilations, cam_paddings, bn_momentum),
-                nn.BatchNorm2d(cam_out_chans, momentum=bn_momentum),
+                torch.nn.BatchNorm2d(cam_out_chans, momentum=bn_momentum),
                 get_relu(leaky_relu_slope))
               for _ in range(num_cam_bottlenecks)],
             # from (b, cam_out, h, t) to (b, first_hid, 1, t)
-            nn.Conv2d(
+            torch.nn.Conv2d(
                 cam_out_chans, conv1x1head[0], (out_bins, summary_width),
                 padding=(0, 1), bias=False),
-            nn.BatchNorm2d(conv1x1head[0], momentum=bn_momentum),
+            torch.nn.BatchNorm2d(conv1x1head[0], momentum=bn_momentum),
             get_relu(leaky_relu_slope),
             # from (b, first_hid, 1, t) to (b, out_bins, 1, t)
             conv1x1net((*conv1x1head, out_bins), bn_momentum,
@@ -103,7 +102,7 @@ class OnsetsAndVelocities(nn.Module):
 
     def __init__(self, in_chans, in_height, out_height, conv1x1head=(200, 200),
                  bn_momentum=0.1, leaky_relu_slope=0.1, dropout_drop_p=0.1,
-                 init_fn=nn.init.kaiming_normal_, se_init_bias=1.0):
+                 init_fn=torch.nn.init.kaiming_normal_, se_init_bias=1.0):
         """
         """
         super().__init__()
@@ -114,31 +113,31 @@ class OnsetsAndVelocities(nn.Module):
         self.specnorm = SubSpectralNorm(
             in_chans, in_height, in_height, bn_momentum)
         #
-        self.stem = nn.Sequential(
+        self.stem = torch.nn.Sequential(
             # lift in chans into stem chans
-            nn.Conv2d(in_chans, stem_chans, (3, 3),
+            torch.nn.Conv2d(in_chans, stem_chans, (3, 3),
                             padding=(1, 1), bias=False),
-            nn.BatchNorm2d(stem_chans, momentum=bn_momentum),
+            torch.nn.BatchNorm2d(stem_chans, momentum=bn_momentum),
             get_relu(leaky_relu_slope),
             # series of stem CAMs. Output: (b, stem_chans, mels, t)
-            *[nn.Sequential(
+            *[torch.nn.Sequential(
                 ContextAwareModule(
                     stem_chans, self.STEM_CAM_HDC_CHANS,
                     self.STEM_CAM_SE_BOTTLENECK, self.STEM_CAM_KSIZES,
                     self.STEM_CAM_DILATIONS, self.STEM_CAM_PADDINGS,
                     bn_momentum),
-                nn.BatchNorm2d(stem_chans, momentum=bn_momentum),
+                torch.nn.BatchNorm2d(stem_chans, momentum=bn_momentum),
                 get_relu(leaky_relu_slope))
               for _ in range(self.STEM_NUM_CAMS)],
             # reshape to ``(b, stem_chans, keys, t)``
             DepthwiseConv2d(
                 stem_chans, stem_chans, in_height, out_height,
                 kernel_width=1, bias=False),
-            nn.BatchNorm2d(stem_chans, momentum=bn_momentum),
+            torch.nn.BatchNorm2d(stem_chans, momentum=bn_momentum),
             get_relu(leaky_relu_slope))
         #
-        self.onset_stages = nn.ModuleList(
-            [nn.Sequential(
+        self.onset_stages = torch.nn.ModuleList(
+            [torch.nn.Sequential(
                 self.get_cam_stage(
                     stem_chans, out_height, conv1x1head,
                     self.OSTAGE_NUM_CAMS, self.OSTAGE_CAM_HDC_CHANS,
@@ -148,7 +147,7 @@ class OnsetsAndVelocities(nn.Module):
                 SubSpectralNorm(1, out_height, out_height, bn_momentum))
              for _ in range(self.NUM_ONSET_STAGES)])
         #
-        self.velocity_stage = nn.Sequential(
+        self.velocity_stage = torch.nn.Sequential(
             self.get_cam_stage(
                     vel_in_chans, out_height, conv1x1head,
                     self.VSTAGE_NUM_CAMS, self.VSTAGE_CAM_HDC_CHANS,
@@ -221,3 +220,4 @@ class OnsetsAndVelocities(nn.Module):
         velocities = self.velocity_stage(stem_out).squeeze(1)
         #
         return x_stages, velocities
+    

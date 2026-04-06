@@ -8,15 +8,14 @@ PyTorch building blocks.
 
 
 import torch
-from torch import nn
 #
-from models.onsetsandvelocities.utils import init_weights
+from .utils import init_weights
 
 
 # ##############################################################################
 # # WRAPPERS
 # ##############################################################################
-class Permuter(nn.Module):
+class Permuter(torch.nn.Module):
     """
     Module wrapper to permute tensor axes.
     """
@@ -41,16 +40,16 @@ def get_relu(leaky_slope=None):
       with the given slope (must be a float).
     """
     if leaky_slope is None:
-        result = nn.ReLU(inplace=True)
+        result = torch.nn.ReLU(inplace=True)
     else:
-        result = nn.LeakyReLU(leaky_slope, inplace=True)
+        result = torch.nn.LeakyReLU(leaky_slope, inplace=True)
     return result
 
 
 # ##############################################################################
 # # POST-PROCESSING
 # ##############################################################################
-class GaussianBlur1d(nn.Module):
+class GaussianBlur1d(torch.nn.Module):
     """
     Performs 1D gaussian convolution along last dimension of ``(b, c, t)``
     tensors.
@@ -81,7 +80,7 @@ class GaussianBlur1d(nn.Module):
         super().__init__()
         self.ksize = ksize
         self.stddev = stddev
-        self.blur_fn = nn.Conv1d(
+        self.blur_fn = torch.nn.Conv1d(
             num_chans, num_chans, ksize, padding=ksize // 2,
             groups=num_chans, bias=False)
         #
@@ -101,7 +100,7 @@ class GaussianBlur1d(nn.Module):
         return x
 
 
-class Nms1d(nn.Module):
+class Nms1d(torch.nn.Module):
     """
     PT-compatible NMS, 1-dimensional along the last axis. Note that any
     non-zero entry that equals the maximum among the ``pool_ksize`` vicinity
@@ -114,7 +113,7 @@ class Nms1d(nn.Module):
         """
         """
         super().__init__()
-        self.nms_pool = nn.MaxPool1d(
+        self.nms_pool = torch.nn.MaxPool1d(
             pool_ksize, stride=1, padding=pool_ksize // 2, ceil_mode=False)
 
     def forward(self, onset_preds, thresh=None):
@@ -133,7 +132,7 @@ class Nms1d(nn.Module):
 # ##############################################################################
 # # NORM LAYERS
 # ##############################################################################
-class SubSpectralNorm(nn.Module):
+class SubSpectralNorm(torch.nn.Module):
     """
     Modified from https://arxiv.org/pdf/2103.13620.pdf
     This torch module reshapes the ``(b, c, f, t)`` batch into frequency
@@ -149,7 +148,7 @@ class SubSpectralNorm(nn.Module):
         super().__init__()
         self.S = S
         self.eps = eps
-        self.bn = nn.BatchNorm2d(C * S, momentum=momentum)
+        self.bn = torch.nn.BatchNorm2d(C * S, momentum=momentum)
         assert divmod(F, S)[1] == 0, "S must divide F exactly!"
 
     def forward(self, x):
@@ -166,7 +165,7 @@ class SubSpectralNorm(nn.Module):
 # #############################################################################
 # # CONTEXT-AWARE MODULE
 # #############################################################################
-class SELayer(nn.Module):
+class SELayer(torch.nn.Module):
     """
     Implementation of the squeeze-excitation module from
     https://arxiv.org/pdf/1709.01507.pdf
@@ -183,12 +182,12 @@ class SELayer(nn.Module):
             hidden_chans = in_chans // 4
         if out_chans is None:
             out_chans = in_chans
-        self.avg_pool = nn.AdaptiveAvgPool2d(1)  # output a scalar per ch
-        self.fc = nn.Sequential(
-            nn.Linear(in_chans, hidden_chans, bias=True),
-            nn.ReLU(inplace=True),
-            nn.Linear(hidden_chans, out_chans, bias=True),
-            nn.Sigmoid()
+        self.avg_pool = torch.nn.AdaptiveAvgPool2d(1)  # output a scalar per ch
+        self.fc = torch.nn.Sequential(
+            torch.nn.Linear(in_chans, hidden_chans, bias=True),
+            torch.nn.ReLU(inplace=True),
+            torch.nn.Linear(hidden_chans, out_chans, bias=True),
+            torch.nn.Sigmoid()
         )
 
     def set_biases(self, val=0):
@@ -207,7 +206,7 @@ class SELayer(nn.Module):
         return y  # (b, c, 1, 1)
 
 
-class ContextAwareModule(nn.Module):
+class ContextAwareModule(torch.nn.Module):
     """
     Context-Aware Module from https://arxiv.org/pdf/1910.12223.pdf adapted for
     the processing of spectrograms.
@@ -234,21 +233,21 @@ class ContextAwareModule(nn.Module):
         #
         self.se = SELayer(in_chans, se_bottleneck, hdc_out_chans, bn_momentum)
         #
-        self.hdcs = nn.ModuleList(
-            [nn.Sequential(
-                nn.Conv2d(
+        self.hdcs = torch.nn.ModuleList(
+            [torch.nn.Sequential(
+                torch.nn.Conv2d(
                     in_chans, hdc_chans, stride=1,
                     kernel_size=ks, dilation=dil, padding=pad,
                     bias=False),
-                nn.BatchNorm2d(hdc_chans, momentum=bn_momentum),
-                nn.ReLU(inplace=True))
+                torch.nn.BatchNorm2d(hdc_chans, momentum=bn_momentum),
+                torch.nn.ReLU(inplace=True))
              for ks, dil, pad in zip(ksizes, dilations, paddings)])
         #
-        self.skip = nn.Sequential(
-            nn.Conv2d(in_chans, hdc_out_chans, kernel_size=1,
+        self.skip = torch.nn.Sequential(
+            torch.nn.Conv2d(in_chans, hdc_out_chans, kernel_size=1,
                             bias=False),
-            nn.BatchNorm2d(hdc_out_chans, momentum=bn_momentum),
-            nn.ReLU(inplace=True))
+            torch.nn.BatchNorm2d(hdc_out_chans, momentum=bn_momentum),
+            torch.nn.ReLU(inplace=True))
 
     def forward(self, x):
         """
@@ -284,25 +283,25 @@ def conv1x1net(hid_chans, bn_momentum=0.1, last_layer_bn_relu=False,
     assert (kernel_width % 2) == 1, "Only odd kwidth supported!"
     wpad = kernel_width // 2
     #
-    result = nn.Sequential()
+    result = torch.nn.Sequential()
     n_layers = len(hid_chans) - 1
     for i, (h_in, h_out) in enumerate(zip(hid_chans[:-1],
                                           hid_chans[1:]), 1):
         if (i < n_layers) or ((i == n_layers) and last_layer_bn_relu):
-            result.append(nn.Conv2d(h_in, h_out, (1, kernel_width),
+            result.append(torch.nn.Conv2d(h_in, h_out, (1, kernel_width),
                                           padding=(0, wpad), bias=False))
-            result.append(nn.BatchNorm2d(h_out, momentum=bn_momentum))
+            result.append(torch.nn.BatchNorm2d(h_out, momentum=bn_momentum))
             result.append(get_relu(leaky_relu_slope))
             if dropout_drop_p is not None:
-                result.append(nn.Dropout(dropout_drop_p, inplace=False))
+                result.append(torch.nn.Dropout(dropout_drop_p, inplace=False))
         else:
-            result.append(nn.Conv2d(h_in, h_out, (1, kernel_width),
+            result.append(torch.nn.Conv2d(h_in, h_out, (1, kernel_width),
                                           padding=(0, wpad), bias=True))
     #
     return result
 
 
-class DepthwiseConv2d(nn.Module):
+class DepthwiseConv2d(torch.nn.Module):
     """
     For input spectrogram ``(b, ch_in, h_in, t)``, the DepthwiseConv can be
     implemented as follows (assuming ``same`` padding):
@@ -325,7 +324,7 @@ class DepthwiseConv2d(nn.Module):
         self.h_in, self.h_out = h_in, h_out
         #
         assert (kernel_width % 2) == 1, "Only odd kwidth supported!"
-        self.conv = nn.Conv2d(
+        self.conv = torch.nn.Conv2d(
             ch_in, ch_out * h_out,
             (h_in, kernel_width), padding=(0, kernel_width // 2), groups=ch_in,
             bias=bias)
