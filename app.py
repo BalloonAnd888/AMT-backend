@@ -1,3 +1,5 @@
+from typing import List
+
 import gradio as gr
 import torch
 import librosa
@@ -17,9 +19,9 @@ from models.onsetsandframes.of import OnsetsAndFrames
 from models.onsetsandframes.decoding import extract_notes
 from models.onsetsandframes.midi import save_midi
 from models.pianotranscriptionbytedance.inference import PianoTranscription
+from torchaudio.transforms import MelSpectrogram as TorchMelSpec, AmplitudeToDB
 from models.onsetsandvelocities.ov import OnsetsAndVelocities
-from models.onsetsandvelocities.decoder import OnsetVelocityNmsDecoder
-from models.ov.inference import strided_inference
+from models.onsetsandvelocities.inference import strided_inference, OnsetVelocityNmsDecoder
 
 MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "modelFiles")
 
@@ -87,57 +89,194 @@ def process_audio(audio_path, model_choice):
     model_path = MODELS[model_choice]["path"]
     
     if model_choice == "ov":
+        OV_SAMPLE_RATE = 16000
+        OV_WINDOW_LENGTH = 2048
+        OV_HOP_LENGTH = 384
+        OV_N_MELS = 229
+        OV_MEL_FMIN = 50
+        OV_MEL_FMAX = 8000
+
+        DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+        CONV1X1_HEAD: List[int] = (200, 200)
+        BATCH_NORM = 0
+        LEAKY_RELU_SLOPE: float = 0.1
+        DROPOUT = 0
+        IN_CHANS = 2
+
+        INFERENCE_CHUNK_SIZE: float = 400  
+        INFERENCE_CHUNK_OVERLAP: float = 11 
+        INFERENCE_THRESHOLD: float = 0.74
+
+        SECS_PER_FRAME = OV_HOP_LENGTH / OV_SAMPLE_RATE
+        CHUNK_SIZE = round(INFERENCE_CHUNK_SIZE / SECS_PER_FRAME)
+        CHUNK_OVERLAP = round(INFERENCE_CHUNK_OVERLAP / SECS_PER_FRAME)
+
+        class TorchWavToLogmel(torch.nn.Module):
+            """
+            Matches the TorchWavToLogmel used during training in ov_piano/utils.py.
+            Uses torchaudio MelSpectrogram + AmplitudeToDB(top_db=80).
+            """
+            def __init__(self, samplerate, winsize, hopsize, n_mels,
+                        mel_fmin=50, mel_fmax=8000):
+                super().__init__()
+                self.melspec = TorchMelSpec(
+                    samplerate, winsize, hop_length=hopsize,
+                    f_min=mel_fmin, f_max=mel_fmax, n_mels=n_mels,
+                    power=2, window_fn=torch.hann_window)
+                self.to_db = AmplitudeToDB(stype="power", top_db=80.0)
+                # Must run once to avoid NaNs on first real call
+                self.melspec(torch.rand(winsize * 10))
+
+            def forward(self, wav_arr):
+                """
+                :param wav_arr: 1D float tensor or (chans, time)
+                :returns: log-mel spectrogram of shape (n_mels, t)
+                """
+                mel = self.melspec(wav_arr)
+                log_mel = self.to_db(mel)
+                return log_mel
+
+        def load_model(model, path, eval_phase=True):
+            """Load model weights from checkpoint."""
+            state_dict = torch.load(path, map_location=DEVICE)
+            model.load_state_dict(state_dict, strict=True)
+            if eval_phase:
+                model.eval()
+            else:
+                model.train()
+            print(f"Loaded {len(state_dict)} parameter tensors from {path}")
+            print(f"First param norm: {list(model.parameters())[0].norm().item():.4f}")
+
+
+        def make_triple_onsets(onsets):
+            """
+            :param onsets: boolean array of shape (k, t)
+            :returns: boolean array of same shape, but every true entry at time
+            t is also extended to t+1, t+2.
+            """
+            result = onsets.copy()
+            result[:, 1:] |= result[:, :-1]
+            result[:, 1:] |= result[:, :-1]
+            return result
+
+
+        def df_to_midi(df, secs_per_frame, output_path="output.mid"):
+            """
+            Convert decoder output DataFrame to a MIDI file.
+
+            :param df: DataFrame with columns [batch_idx, key, t_idx, prob, vel]
+            :param secs_per_frame: seconds per mel frame (HOP_LENGTH / SAMPLE_RATE)
+            :param output_path: path to save MIDI file
+            """
+            try:
+                import pretty_midi
+            except ImportError:
+                print("pretty_midi not installed. Run: pip install pretty_midi")
+                return
+
+            midi = pretty_midi.PrettyMIDI()
+            piano = pretty_midi.Instrument(program=0)  # Acoustic Grand Piano
+
+            df_sorted = df.sort_values("t_idx")
+
+            for _, row in df_sorted.iterrows():
+                onset_time = float(row["t_idx"]) * secs_per_frame
+                velocity = int(float(row["vel"]) * 127)
+                pitch = int(row["key"]) + MIN_MIDI  # key 0 = A0 = MIDI 21
+
+                note = pretty_midi.Note(
+                    velocity=max(1, min(127, velocity)),
+                    pitch=max(0, min(127, pitch)),
+                    start=onset_time,
+                    end=onset_time + 0.2  # default duration; model only predicts onsets
+                )
+                piano.notes.append(note)
+
+            midi.instruments.append(piano)
+            midi.write(output_path)
+            print(f"MIDI saved to {output_path} ({len(df_sorted)} notes)")
+
         model = OnsetsAndVelocities(
-            in_chans=2,
-            in_height=N_MELS,
+            in_chans=IN_CHANS,
+            in_height=OV_N_MELS,
             out_height=N_KEYS,
-            conv1x1head=(200, 200),
-            bn_momentum=0,
-            leaky_relu_slope=0.1,
-            dropout_drop_p=0
-        ).to(device)
+            conv1x1head=CONV1X1_HEAD,
+            bn_momentum=BATCH_NORM,
+            leaky_relu_slope=LEAKY_RELU_SLOPE,
+            dropout_drop_p=DROPOUT
+        ).to(DEVICE)
 
-        if os.path.exists(model_path):
-            model.load_state_dict(torch.load(model_path, map_location=device))
-        else:
-            print(f"Warning: Model file not found at {model_path}")
+        load_model(model, model_path, eval_phase=True)
 
-        model.eval()
         decoder = OnsetVelocityNmsDecoder(
             num_keys=N_KEYS,
             nms_pool_ksize=3,
-            gauss_conv_stddev=1.0,
+            gauss_conv_stddev=1,
             gauss_conv_ksize=11,
             vel_pad_left=1,
             vel_pad_right=1
-        ).to(device)
+        ).to(DEVICE)
 
-        mel_input = log_mel if log_mel.dim() == 3 else log_mel.unsqueeze(0)
-        
-        def model_wrapper(x):
+        mel_extractor = TorchWavToLogmel(
+            samplerate=OV_SAMPLE_RATE,
+            winsize=OV_WINDOW_LENGTH,
+            hopsize=OV_HOP_LENGTH,
+            n_mels=OV_N_MELS,
+            mel_fmin=OV_MEL_FMIN,
+            mel_fmax=OV_MEL_FMAX
+        ).to(DEVICE)
+
+        print(f"Loading audio from: {audio_path}")
+        audio, _ = librosa.load(audio_path, sr=OV_SAMPLE_RATE, mono=True)
+        audio = torch.FloatTensor(audio).to(DEVICE)
+        audio = audio / (audio.abs().max() + 1e-8)  # peak normalize
+
+        triple_onsets = None # Ground truth not available for arbitrary custom audio files
+        with torch.no_grad():
+            mel = mel_extractor(audio)       
+            mel = mel.unsqueeze(0)              
+
+        print(f"Mel shape: {mel.shape}")
+        print(f"Mel range: {mel.min().item():.2f} to {mel.max().item():.2f} dB")
+
+        def model_inference(x):
+            """
+            x: (1, n_mels, t) chunk from strided_inference
+            """
             with torch.no_grad():
-                pred_onset_stack, pred_vels = model(x, trainable_onsets=False)
-                # Pad back to T instead of T-1 for strided inference assertion
-                probs_pad = F.pad(torch.sigmoid(pred_onset_stack[-1]), (1, 0))
-                vels_pad = F.pad(torch.sigmoid(pred_vels), (1, 0))
-                return [probs_pad, vels_pad]
-                
-        probs, vels = strided_inference(model_wrapper, mel_input, chunk_size=10000, chunk_overlap=100)
-        probs = probs.to(device)
-        vels = vels.to(device)
-        df = decoder(probs, vels, pthresh=0.5)
+                probs, vels = model(x, trainable_onsets=False)
+                probs = F.pad(torch.sigmoid(probs[-1]), (1, 0))
+                vels = F.pad(torch.sigmoid(vels), (1, 0))
+            return probs, vels
 
-        if not df.empty:
-            pitches = np.array([midi_to_hz(MIN_MIDI + k) for k in df["key"].values])
-            scaling = HOP_LENGTH / SAMPLE_RATE
-            onsets = df["t_idx"].values * scaling
-            intervals = np.column_stack([onsets, onsets + 0.1])
-            velocities = df["vel"].values
-            temp_midi = tempfile.NamedTemporaryFile(delete=False, suffix=".mid")
-            midi_file_path = temp_midi.name
-            temp_midi.close()
-            save_midi(midi_file_path, pitches, intervals, velocities)
-        print(f"Saved results to {midi_file_path}")
+        with torch.no_grad():
+            onset_pred, vel_pred = strided_inference(
+                model_inference, mel, CHUNK_SIZE, CHUNK_OVERLAP)
+
+            onset_pred = onset_pred.to(DEVICE)
+            vel_pred = vel_pred.to(DEVICE)
+
+            print(f"Max onset prob: {onset_pred.max().item():.4f}")
+            print(f"Mean onset prob: {onset_pred.mean().item():.4f}")
+
+            # Decode onsets
+            df = decoder(onset_pred, vel_pred, INFERENCE_THRESHOLD)
+            print(f"Decoded {len(df)} onsets")
+            if len(df) > 0:
+                print(df.head(10))
+
+            onset_pred_np = onset_pred.cpu().numpy().squeeze()  # (88, t)
+            vel_pred_np = vel_pred.cpu().numpy().squeeze()       # (88, t)
+
+        # Create a temporary MIDI file
+        temp_midi = tempfile.NamedTemporaryFile(delete=False, suffix=".mid")
+        midi_file_path = temp_midi.name
+        temp_midi.close()
+
+        if len(df) > 0:
+            df_to_midi(df, SECS_PER_FRAME, midi_file_path)
+            print(f"Saved results to {midi_file_path}")
+
     elif model_choice == "of":
         model = OnsetsAndFrames(
             input_features=N_MELS, 

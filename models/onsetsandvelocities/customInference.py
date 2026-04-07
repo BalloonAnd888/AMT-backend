@@ -1,5 +1,4 @@
 import os
-import random
 import torch
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
@@ -12,7 +11,7 @@ from torchaudio.transforms import MelSpectrogram as TorchMelSpec, AmplitudeToDB
 
 from models.onsetsandvelocities.ov import OnsetsAndVelocities
 from models.onsetsandvelocities.inference import strided_inference, OnsetVelocityNmsDecoder
-from preprocessing.constants import DATA_PATH, N_KEYS
+from preprocessing.constants import N_KEYS
 
 OV_SAMPLE_RATE = 16000
 OV_WINDOW_LENGTH = 2048
@@ -28,8 +27,8 @@ LEAKY_RELU_SLOPE: float = 0.1
 DROPOUT = 0
 IN_CHANS = 2
 
-INFERENCE_CHUNK_SIZE: float = 400   # seconds
-INFERENCE_CHUNK_OVERLAP: float = 11  # seconds
+INFERENCE_CHUNK_SIZE: float = 400  
+INFERENCE_CHUNK_OVERLAP: float = 11 
 INFERENCE_THRESHOLD: float = 0.74
 
 SECS_PER_FRAME = OV_HOP_LENGTH / OV_SAMPLE_RATE
@@ -98,58 +97,6 @@ def make_triple_onsets(onsets):
     result[:, 1:] |= result[:, :-1]
     result[:, 1:] |= result[:, :-1]
     return result
-
-
-def load_random_test_audio(data_path):
-    """
-    Load a random test audio file and its ground truth onset roll
-    directly from the MAESTRO dataset, bypassing the dataset class
-    to avoid hop length mismatches.
-
-    :returns: (audio_tensor, triple_onsets, audio_path)
-      audio_tensor: float32 tensor of shape (1, samples), peak-normalized
-      triple_onsets: boolean array of shape (N_KEYS, n_frames) or None
-      audio_path: path to the audio file
-    """
-    csv_path = os.path.join(data_path, "maestro-v3.0.0.csv")
-    if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"MAESTRO CSV not found at {csv_path}")
-
-    df = pd.read_csv(csv_path)
-    test_files = df[df['split'] == 'test']
-    row = test_files.sample(1).iloc[0]
-
-    audio_path = os.path.join(data_path, row['audio_filename'])
-    midi_path = os.path.join(data_path, row['midi_filename'])
-
-    print(f"Loading: {os.path.basename(audio_path)}")
-
-    # Load and resample audio
-    audio, _ = librosa.load(audio_path, sr=OV_SAMPLE_RATE, mono=True)
-    audio = torch.FloatTensor(audio).to(DEVICE)
-
-    # Peak normalize exactly as done during training
-    audio = audio / (audio.abs().max() + 1e-8)
-
-    # Load ground truth onsets from TSV
-    tsv_path = midi_path.rsplit('.', 1)[0] + '.tsv'
-    triple_onsets = None
-    if os.path.exists(tsv_path):
-        try:
-            midi_data = np.loadtxt(tsv_path, delimiter='\t', skiprows=1)
-            # Estimate n_frames from audio length
-            n_frames = len(audio) // OV_HOP_LENGTH + 1
-            onsets = np.zeros((n_frames, N_KEYS), dtype=bool)
-            for onset, offset, note, vel in midi_data:
-                frame = int(round(onset * OV_SAMPLE_RATE / OV_HOP_LENGTH))
-                key = int(note) - MIN_MIDI
-                if 0 <= key < N_KEYS and frame < n_frames:
-                    onsets[frame, key] = True
-            triple_onsets = make_triple_onsets(onsets.T)  # (N_KEYS, n_frames)
-        except Exception as e:
-            print(f"Warning: could not load ground truth onsets: {e}")
-
-    return audio, triple_onsets, audio_path
 
 
 def df_to_midi(df, secs_per_frame, output_path="output.mid"):
@@ -273,11 +220,12 @@ def qualitative_plot(gt_mel, gt_roll, pred_ons, pred_vel,
 
     return fig, axes
 
-def inference(model_path, save_midi=True, show_plot=True):
+def inference(model_path, audio_file_path: str, save_midi=True, show_plot=True):
     """
-    Run onset+velocity inference on a random MAESTRO test file.
+    Run onset+velocity inference on a specified audio file.
 
     :param model_path: Path to the .pt model checkpoint.
+    :param audio_file_path: Path to the audio file to transcribe.
     :param save_midi: If True, saves decoded onsets as a MIDI file.
     :param show_plot: If True, displays the qualitative plot.
     """
@@ -314,12 +262,15 @@ def inference(model_path, save_midi=True, show_plot=True):
         mel_fmax=OV_MEL_FMAX
     ).to(DEVICE)
 
-    audio, triple_onsets, audio_path = load_random_test_audio(DATA_PATH)
+    print(f"Loading audio from: {audio_file_path}")
+    audio, _ = librosa.load(audio_file_path, sr=OV_SAMPLE_RATE, mono=True)
+    audio = torch.FloatTensor(audio).to(DEVICE)
+    audio = audio / (audio.abs().max() + 1e-8)  # peak normalize
 
-    # Extract mel: TorchWavToLogmel expects 1D or (chans, time)
+    triple_onsets = None # Ground truth not available for arbitrary custom audio files
     with torch.no_grad():
-        mel = mel_extractor(audio)          # (n_mels, t)
-        mel = mel.unsqueeze(0)              # (1, n_mels, t) for strided_inference
+        mel = mel_extractor(audio)       
+        mel = mel.unsqueeze(0)              
 
     print(f"Mel shape: {mel.shape}")
     print(f"Mel range: {mel.min().item():.2f} to {mel.max().item():.2f} dB")
@@ -356,7 +307,7 @@ def inference(model_path, save_midi=True, show_plot=True):
     if save_midi and len(df) > 0:
         midi_out = os.path.join(
             results_dir,
-            os.path.splitext(os.path.basename(audio_path))[0] + '_pred.mid')
+            os.path.splitext(os.path.basename(audio_file_path))[0] + '_pred.mid')
         df_to_midi(df, SECS_PER_FRAME, midi_out)
 
     if show_plot:
@@ -398,5 +349,12 @@ if __name__ == "__main__":
         model_dir,
         'OnsetsAndVelocities_2023_03_04_09_53_53.289step=43500_f1=0.9675__0.9480.pt')
 
-    print("--- OnsetsAndVelocities Inference ---")
-    df = inference(MODEL_PATH, save_midi=True, show_plot=True)
+    print("--- OnsetsAndVelocities Inference with Custom Audio File ---")
+
+    # Specify the audio file path directly
+    audio_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'audio'))
+    # Replace 'your_audio_file.wav' with the actual name of your audio file in the 'audio' folder
+    AUDIO_FILE_PATH = os.path.join(audio_folder_path, 'route1.wav')
+
+    # Run inference with the specified audio file
+    df = inference(MODEL_PATH, AUDIO_FILE_PATH, save_midi=True, show_plot=False)
