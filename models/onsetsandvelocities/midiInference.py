@@ -8,18 +8,18 @@ import numpy as np
 import pandas as pd
 from matplotlib.ticker import FuncFormatter
 from typing import List
-from torchaudio.transforms import MelSpectrogram as TorchMelSpec, AmplitudeToDB
 
 from models.onsetsandvelocities.ov import OnsetsAndVelocities
 from models.onsetsandvelocities.inference import strided_inference, OnsetVelocityNmsDecoder
-from preprocessing.constants import DATA_PATH, N_KEYS
+from preprocessing.constants import DATA_PATH, N_KEYS, HOP_LENGTH, SAMPLE_RATE, N_MELS, MEL_FMAX, MEL_FMIN, WINDOW_LENGTH
+from preprocessing.mel import MelSpectrogram
 
-OV_SAMPLE_RATE = 16000
-OV_WINDOW_LENGTH = 2048
-OV_HOP_LENGTH = 384
-OV_N_MELS = 229
-OV_MEL_FMIN = 50
-OV_MEL_FMAX = 8000
+OV_SAMPLE_RATE = SAMPLE_RATE
+OV_WINDOW_LENGTH = WINDOW_LENGTH
+OV_HOP_LENGTH = HOP_LENGTH
+OV_N_MELS = N_MELS
+OV_MEL_FMIN = MEL_FMIN
+OV_MEL_FMAX = MEL_FMAX
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 CONV1X1_HEAD: List[int] = (200, 200)
@@ -50,31 +50,6 @@ TICK_SIZE: int = 25
 
 # MIDI constants
 MIN_MIDI = 21  # MIDI note number of piano key 0 (A0)
-
-class TorchWavToLogmel(torch.nn.Module):
-    """
-    Matches the TorchWavToLogmel used during training in ov_piano/utils.py.
-    Uses torchaudio MelSpectrogram + AmplitudeToDB(top_db=80).
-    """
-    def __init__(self, samplerate, winsize, hopsize, n_mels,
-                 mel_fmin=50, mel_fmax=8000):
-        super().__init__()
-        self.melspec = TorchMelSpec(
-            samplerate, winsize, hop_length=hopsize,
-            f_min=mel_fmin, f_max=mel_fmax, n_mels=n_mels,
-            power=2, window_fn=torch.hann_window)
-        self.to_db = AmplitudeToDB(stype="power", top_db=80.0)
-        # Must run once to avoid NaNs on first real call
-        self.melspec(torch.rand(winsize * 10))
-
-    def forward(self, wav_arr):
-        """
-        :param wav_arr: 1D float tensor or (chans, time)
-        :returns: log-mel spectrogram of shape (n_mels, t)
-        """
-        mel = self.melspec(wav_arr)
-        log_mel = self.to_db(mel)
-        return log_mel
 
 def load_model(model, path, eval_phase=True):
     """Load model weights from checkpoint."""
@@ -305,21 +280,21 @@ def inference(model_path, save_midi=True, show_plot=True):
         vel_pad_right=1
     ).to(DEVICE)
 
-    mel_extractor = TorchWavToLogmel(
-        samplerate=OV_SAMPLE_RATE,
-        winsize=OV_WINDOW_LENGTH,
-        hopsize=OV_HOP_LENGTH,
+    mel_extractor = MelSpectrogram(
+        sample_rate=OV_SAMPLE_RATE,
+        window_length=OV_WINDOW_LENGTH,
+        hop_length=OV_HOP_LENGTH,
         n_mels=OV_N_MELS,
-        mel_fmin=OV_MEL_FMIN,
-        mel_fmax=OV_MEL_FMAX
+        fmin=OV_MEL_FMIN,
+        fmax=OV_MEL_FMAX
     ).to(DEVICE)
 
     audio, triple_onsets, audio_path = load_random_test_audio(DATA_PATH)
 
-    # Extract mel: TorchWavToLogmel expects 1D or (chans, time)
     with torch.no_grad():
-        mel = mel_extractor(audio)          # (n_mels, t)
-        mel = mel.unsqueeze(0)              # (1, n_mels, t) for strided_inference
+        mel = mel_extractor(audio)
+        # Ensure mel is strictly 3D: (1, n_mels, t) for strided_inference
+        mel = mel.reshape(1, OV_N_MELS, -1)
 
     print(f"Mel shape: {mel.shape}")
     print(f"Mel range: {mel.min().item():.2f} to {mel.max().item():.2f} dB")
@@ -394,9 +369,12 @@ def inference(model_path, save_midi=True, show_plot=True):
 
 if __name__ == "__main__":
     model_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
+    # MODEL_PATH = os.path.join(
+    #     model_dir,
+    #     'OnsetsAndVelocities_2023_03_04_09_53_53.289step=43500_f1=0.9675__0.9480.pt')
     MODEL_PATH = os.path.join(
         model_dir,
-        'OnsetsAndVelocities_2023_03_04_09_53_53.289step=43500_f1=0.9675__0.9480.pt')
+        'OnsetsAndVelocities_epoch=10.pt')
 
     print("--- OnsetsAndVelocities Inference ---")
     df = inference(MODEL_PATH, save_midi=True, show_plot=True)

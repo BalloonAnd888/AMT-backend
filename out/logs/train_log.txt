@@ -1,0 +1,188 @@
+[CONFIG] {'DATA_PATH': 'C:/Users/alau2/Documents/Dataset/maestro-v3.0.0', 'OUTPUT_DIR': 'out', 'SNAPSHOT_INPATH': None, 'RANDOM_SEED': 9636080, 'SAMPLE_RATE': 16000, 'WIN_SIZE': 2048, 'HOP_SIZE': 384, 'N_MELS': 229, 'MEL_FMIN': 50, 'MEL_FMAX': 8000, 'TRAIN_BS': 16, 'TRAIN_BATCH_SECS': 5.0, 'DATALOADER_WORKERS': 4, 'CONV1X1': [200, 200], 'BATCH_NORM': 0.95, 'DROPOUT': 0.15, 'LEAKY_RELU_SLOPE': 0.1, 'LR_MAX': 0.008, 'LR_WARMUP': 0.5, 'LR_PERIOD': 1000, 'LR_DECAY': 0.975, 'LR_SLOWDOWN': 1.0, 'MOMENTUM': 0.95, 'WEIGHT_DECAY': 0.0003, 'ONSET_POSITIVES_WEIGHT': 8.0, 'VEL_LOSS_LAMBDA': 10.0, 'TRAINABLE_ONSETS': True, 'DECODER_GAUSS_STD': 1.0, 'DECODER_GAUSS_KSIZE': 11, 'NUM_EPOCHS': 1, 'TRAIN_LOG_EVERY': 10, 'XV_EVERY': 1000, 'XV_CHUNK_SIZE': 600.0, 'XV_CHUNK_OVERLAP': 2.5, 'XV_THRESHOLDS': [0.7, 0.725, 0.75, 0.775, 0.8], 'XV_TOLERANCE_SECS': 0.05, 'XV_TOLERANCE_VEL': 0.1}
+[DATASET] Train: 962 samples, 61 batches/epoch
+[DATASET] XV: 137 samples
+[START] Training for 1 epochs, seed=9636080, device=cuda
+[CONFIG] {'DATA_PATH': 'C:/Users/alau2/Documents/Dataset/maestro-v3.0.0', 'OUTPUT_DIR': 'out', 'SNAPSHOT_INPATH': None, 'RANDOM_SEED': 7768394, 'SAMPLE_RATE': 16000, 'WIN_SIZE': 2048, 'HOP_SIZE': 384, 'N_MELS': 229, 'MEL_FMIN': 50, 'MEL_FMAX': 8000, 'TRAIN_BS': 16, 'TRAIN_BATCH_SECS': 5.0, 'DATALOADER_WORKERS': 4, 'CONV1X1': [200, 200], 'BATCH_NORM': 0.95, 'DROPOUT': 0.15, 'LEAKY_RELU_SLOPE': 0.1, 'LR_MAX': 0.008, 'LR_WARMUP': 0.5, 'LR_PERIOD': 1000, 'LR_DECAY': 0.975, 'LR_SLOWDOWN': 1.0, 'MOMENTUM': 0.95, 'WEIGHT_DECAY': 0.0003, 'ONSET_POSITIVES_WEIGHT': 8.0, 'VEL_LOSS_LAMBDA': 10.0, 'TRAINABLE_ONSETS': True, 'DECODER_GAUSS_STD': 1.0, 'DECODER_GAUSS_KSIZE': 11, 'NUM_EPOCHS': 1, 'TRAIN_LOG_EVERY': 10, 'XV_EVERY': 1000, 'XV_CHUNK_SIZE': 600.0, 'XV_CHUNK_OVERLAP': 2.5, 'XV_THRESHOLDS': [0.7, 0.725, 0.75, 0.775, 0.8], 'XV_TOLERANCE_SECS': 0.05, 'XV_TOLERANCE_VEL': 0.1}
+[DATASET] Train: 962 samples, 61 batches/epoch
+[DATASET] XV: 137 samples
+[START] Training for 1 epochs, seed=7768394, device=cuda
+[CONFIG] {'DATA_PATH': 'C:/Users/alau2/Documents/Dataset/maestro-v3.0.0', 'OUTPUT_DIR': 'out', 'SNAPSHOT_INPATH': None, 'RANDOM_SEED': 9657760, 'SAMPLE_RATE': 16000, 'WIN_SIZE': 2048, 'HOP_SIZE': 384, 'N_MELS': 229, 'MEL_FMIN': 50, 'MEL_FMAX': 8000, 'TRAIN_BS': 16, 'TRAIN_BATCH_SECS': 5.0, 'DATALOADER_WORKERS': 4, 'CONV1X1': [200, 200], 'BATCH_NORM': 0.95, 'DROPOUT': 0.15, 'LEAKY_RELU_SLOPE': 0.1, 'LR_MAX': 0.008, 'LR_WARMUP': 0.5, 'LR_PERIOD': 1000, 'LR_DECAY': 0.975, 'LR_SLOWDOWN': 1.0, 'MOMENTUM': 0.95, 'WEIGHT_DECAY': 0.0003, 'ONSET_POSITIVES_WEIGHT': 8.0, 'VEL_LOSS_LAMBDA': 10.0, 'TRAINABLE_ONSETS': True, 'DECODER_GAUSS_STD': 1.0, 'DECODER_GAUSS_KSIZE': 11, 'NUM_EPOCHS': 1, 'TRAIN_LOG_EVERY': 10, 'XV_EVERY': 1000, 'XV_CHUNK_SIZE': 600.0, 'XV_CHUNK_OVERLAP': 2.5, 'XV_THRESHOLDS': [0.7, 0.725, 0.75, 0.775, 0.8], 'XV_TOLERANCE_SECS': 0.05, 'XV_TOLERANCE_VEL': 0.1}
+[DATASET] Train: 962 samples, 61 batches/epoch
+[DATASET] XV: 137 samples
+[START] Training for 1 epochs, seed=9657760, device=cuda
+[CONFIG] {'DATA_PATH': 'C:/Users/alau2/Documents/Dataset/maestro-v3.0.0', 'OUTPUT_DIR': 'out', 'SNAPSHOT_INPATH': None, 'RANDOM_SEED': 5724701, 'SAMPLE_RATE': 16000, 'WIN_SIZE': 2048, 'HOP_SIZE': 384, 'N_MELS': 229, 'MEL_FMIN': 50, 'MEL_FMAX': 8000, 'TRAIN_BS': 16, 'TRAIN_BATCH_SECS': 5.0, 'DATALOADER_WORKERS': 4, 'CONV1X1': [200, 200], 'BATCH_NORM': 0.95, 'DROPOUT': 0.15, 'LEAKY_RELU_SLOPE': 0.1, 'LR_MAX': 0.008, 'LR_WARMUP': 0.5, 'LR_PERIOD': 1000, 'LR_DECAY': 0.975, 'LR_SLOWDOWN': 1.0, 'MOMENTUM': 0.95, 'WEIGHT_DECAY': 0.0003, 'ONSET_POSITIVES_WEIGHT': 8.0, 'VEL_LOSS_LAMBDA': 10.0, 'TRAINABLE_ONSETS': True, 'DECODER_GAUSS_STD': 1.0, 'DECODER_GAUSS_KSIZE': 11, 'NUM_EPOCHS': 1, 'TRAIN_LOG_EVERY': 10, 'XV_EVERY': 1000, 'XV_CHUNK_SIZE': 600.0, 'XV_CHUNK_OVERLAP': 2.5, 'XV_THRESHOLDS': [0.7, 0.725, 0.75, 0.775, 0.8], 'XV_TOLERANCE_SECS': 0.05, 'XV_TOLERANCE_VEL': 0.1}
+[DATASET] Train: 962 samples, 61 batches/epoch
+[DATASET] XV: 137 samples
+[START] Training for 1 epochs, seed=5724701, device=cuda
+[CONFIG] {'DATA_PATH': 'C:/Users/alau2/Documents/Dataset/maestro-v3.0.0', 'OUTPUT_DIR': 'out', 'SNAPSHOT_INPATH': None, 'RANDOM_SEED': 8237605, 'SAMPLE_RATE': 16000, 'WIN_SIZE': 2048, 'HOP_SIZE': 384, 'N_MELS': 229, 'MEL_FMIN': 50, 'MEL_FMAX': 8000, 'TRAIN_BS': 16, 'TRAIN_BATCH_SECS': 5.0, 'DATALOADER_WORKERS': 4, 'CONV1X1': [200, 200], 'BATCH_NORM': 0.95, 'DROPOUT': 0.15, 'LEAKY_RELU_SLOPE': 0.1, 'LR_MAX': 0.008, 'LR_WARMUP': 0.5, 'LR_PERIOD': 1000, 'LR_DECAY': 0.975, 'LR_SLOWDOWN': 1.0, 'MOMENTUM': 0.95, 'WEIGHT_DECAY': 0.0003, 'ONSET_POSITIVES_WEIGHT': 8.0, 'VEL_LOSS_LAMBDA': 10.0, 'TRAINABLE_ONSETS': True, 'DECODER_GAUSS_STD': 1.0, 'DECODER_GAUSS_KSIZE': 11, 'NUM_EPOCHS': 1, 'TRAIN_LOG_EVERY': 10, 'XV_EVERY': 1000, 'XV_CHUNK_SIZE': 600.0, 'XV_CHUNK_OVERLAP': 2.5, 'XV_THRESHOLDS': [0.7, 0.725, 0.75, 0.775, 0.8], 'XV_TOLERANCE_SECS': 0.05, 'XV_TOLERANCE_VEL': 0.1}
+[DATASET] Train: 962 samples, 61 batches/epoch
+[DATASET] XV: 137 samples
+[START] Training for 1 epochs, seed=8237605, device=cuda
+[CONFIG] {'DATA_PATH': 'C:/Users/alau2/Documents/Dataset/maestro-v3.0.0', 'OUTPUT_DIR': 'out', 'SNAPSHOT_INPATH': None, 'RANDOM_SEED': 1292483, 'SAMPLE_RATE': 16000, 'WIN_SIZE': 2048, 'HOP_SIZE': 384, 'N_MELS': 229, 'MEL_FMIN': 50, 'MEL_FMAX': 8000, 'TRAIN_BS': 16, 'TRAIN_BATCH_SECS': 5.0, 'DATALOADER_WORKERS': 4, 'CONV1X1': [200, 200], 'BATCH_NORM': 0.95, 'DROPOUT': 0.15, 'LEAKY_RELU_SLOPE': 0.1, 'LR_MAX': 0.008, 'LR_WARMUP': 0.5, 'LR_PERIOD': 1000, 'LR_DECAY': 0.975, 'LR_SLOWDOWN': 1.0, 'MOMENTUM': 0.95, 'WEIGHT_DECAY': 0.0003, 'ONSET_POSITIVES_WEIGHT': 8.0, 'VEL_LOSS_LAMBDA': 10.0, 'TRAINABLE_ONSETS': True, 'DECODER_GAUSS_STD': 1.0, 'DECODER_GAUSS_KSIZE': 11, 'NUM_EPOCHS': 1, 'TRAIN_LOG_EVERY': 10, 'XV_EVERY': 1000, 'XV_CHUNK_SIZE': 600.0, 'XV_CHUNK_OVERLAP': 2.5, 'XV_THRESHOLDS': [0.7, 0.725, 0.75, 0.775, 0.8], 'XV_TOLERANCE_SECS': 0.05, 'XV_TOLERANCE_VEL': 0.1}
+[DATASET] Train: 962 samples, 61 batches/epoch
+[DATASET] XV: 137 samples
+[START] Training for 1 epochs, seed=1292483, device=cuda
+[CONFIG] {'DATA_PATH': 'C:/Users/alau2/Documents/Dataset/maestro-v3.0.0', 'OUTPUT_DIR': 'out', 'SNAPSHOT_INPATH': None, 'RANDOM_SEED': 9731166, 'SAMPLE_RATE': 16000, 'WIN_SIZE': 2048, 'HOP_SIZE': 384, 'N_MELS': 229, 'MEL_FMIN': 50, 'MEL_FMAX': 8000, 'TRAIN_BS': 16, 'TRAIN_BATCH_SECS': 5.0, 'DATALOADER_WORKERS': 4, 'CONV1X1': [200, 200], 'BATCH_NORM': 0.95, 'DROPOUT': 0.15, 'LEAKY_RELU_SLOPE': 0.1, 'LR_MAX': 0.008, 'LR_WARMUP': 0.5, 'LR_PERIOD': 1000, 'LR_DECAY': 0.975, 'LR_SLOWDOWN': 1.0, 'MOMENTUM': 0.95, 'WEIGHT_DECAY': 0.0003, 'ONSET_POSITIVES_WEIGHT': 8.0, 'VEL_LOSS_LAMBDA': 10.0, 'TRAINABLE_ONSETS': True, 'DECODER_GAUSS_STD': 1.0, 'DECODER_GAUSS_KSIZE': 11, 'NUM_EPOCHS': 1, 'TRAIN_LOG_EVERY': 10, 'XV_EVERY': 1000, 'XV_CHUNK_SIZE': 600.0, 'XV_CHUNK_OVERLAP': 2.5, 'XV_THRESHOLDS': [0.7, 0.725, 0.75, 0.775, 0.8], 'XV_TOLERANCE_SECS': 0.05, 'XV_TOLERANCE_VEL': 0.1}
+[DATASET] Train: 962 samples, 61 batches/epoch
+[DATASET] XV: 137 samples
+[START] Training for 1 epochs, seed=9731166, device=cuda
+[TRAIN] {'epoch': 1, 'batch': 9, 'global_step': 10, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0666', 'ons_loss': '0.9097', 'total': '0.9763'}, 'lr': '0.000145'}
+[TRAIN] {'epoch': 1, 'batch': 19, 'global_step': 20, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0726', 'ons_loss': '0.8723', 'total': '0.9449'}, 'lr': '0.000305'}
+[TRAIN] {'epoch': 1, 'batch': 29, 'global_step': 30, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0843', 'ons_loss': '0.8287', 'total': '0.9130'}, 'lr': '0.000465'}
+[TRAIN] {'epoch': 1, 'batch': 39, 'global_step': 40, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0697', 'ons_loss': '0.7916', 'total': '0.8613'}, 'lr': '0.000625'}
+[TRAIN] {'epoch': 1, 'batch': 49, 'global_step': 50, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0485', 'ons_loss': '0.7678', 'total': '0.8162'}, 'lr': '0.000785'}
+[TRAIN] {'epoch': 1, 'batch': 59, 'global_step': 60, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0640', 'ons_loss': '0.7548', 'total': '0.8188'}, 'lr': '0.000945'}
+[EPOCH_END] Epoch 1/1 complete
+[DONE] Training complete.
+[CONFIG] {'DATA_PATH': 'C:/Users/alau2/Documents/Dataset/maestro-v3.0.0', 'OUTPUT_DIR': 'out', 'SNAPSHOT_INPATH': None, 'RANDOM_SEED': 4986303, 'SAMPLE_RATE': 16000, 'WIN_SIZE': 2048, 'HOP_SIZE': 384, 'N_MELS': 229, 'MEL_FMIN': 50, 'MEL_FMAX': 8000, 'TRAIN_BS': 16, 'TRAIN_BATCH_SECS': 5.0, 'DATALOADER_WORKERS': 4, 'CONV1X1': [200, 200], 'BATCH_NORM': 0.95, 'DROPOUT': 0.15, 'LEAKY_RELU_SLOPE': 0.1, 'LR_MAX': 0.008, 'LR_WARMUP': 0.5, 'LR_PERIOD': 1000, 'LR_DECAY': 0.975, 'LR_SLOWDOWN': 1.0, 'MOMENTUM': 0.95, 'WEIGHT_DECAY': 0.0003, 'ONSET_POSITIVES_WEIGHT': 8.0, 'VEL_LOSS_LAMBDA': 10.0, 'TRAINABLE_ONSETS': True, 'DECODER_GAUSS_STD': 1.0, 'DECODER_GAUSS_KSIZE': 11, 'NUM_EPOCHS': 10, 'TRAIN_LOG_EVERY': 10, 'XV_EVERY': 1000, 'XV_CHUNK_SIZE': 600.0, 'XV_CHUNK_OVERLAP': 2.5, 'XV_THRESHOLDS': [0.7, 0.725, 0.75, 0.775, 0.8], 'XV_TOLERANCE_SECS': 0.05, 'XV_TOLERANCE_VEL': 0.1}
+[DATASET] Train: 962 samples, 61 batches/epoch
+[DATASET] XV: 137 samples
+[START] Training for 10 epochs, seed=4986303, device=cuda
+[TRAIN] {'epoch': 1, 'batch': 9, 'global_step': 10, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0930', 'ons_loss': '0.9071', 'total': '1.0001'}, 'lr': '0.000145'}
+[TRAIN] {'epoch': 1, 'batch': 19, 'global_step': 20, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0954', 'ons_loss': '0.8702', 'total': '0.9655'}, 'lr': '0.000305'}
+[TRAIN] {'epoch': 1, 'batch': 29, 'global_step': 30, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0763', 'ons_loss': '0.8057', 'total': '0.8820'}, 'lr': '0.000465'}
+[TRAIN] {'epoch': 1, 'batch': 39, 'global_step': 40, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0580', 'ons_loss': '0.7760', 'total': '0.8340'}, 'lr': '0.000625'}
+[TRAIN] {'epoch': 1, 'batch': 49, 'global_step': 50, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0590', 'ons_loss': '0.7656', 'total': '0.8247'}, 'lr': '0.000785'}
+[TRAIN] {'epoch': 1, 'batch': 59, 'global_step': 60, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0707', 'ons_loss': '0.7637', 'total': '0.8344'}, 'lr': '0.000945'}
+[EPOCH_END] Epoch 1/10 complete
+[TRAIN] {'epoch': 2, 'batch': 8, 'global_step': 70, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0607', 'ons_loss': '0.7389', 'total': '0.7996'}, 'lr': '0.001105'}
+[TRAIN] {'epoch': 2, 'batch': 18, 'global_step': 80, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0747', 'ons_loss': '0.7420', 'total': '0.8167'}, 'lr': '0.001265'}
+[TRAIN] {'epoch': 2, 'batch': 28, 'global_step': 90, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0786', 'ons_loss': '0.7202', 'total': '0.7987'}, 'lr': '0.001425'}
+[TRAIN] {'epoch': 2, 'batch': 38, 'global_step': 100, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0531', 'ons_loss': '0.6945', 'total': '0.7476'}, 'lr': '0.001585'}
+[TRAIN] {'epoch': 2, 'batch': 48, 'global_step': 110, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0855', 'ons_loss': '0.7102', 'total': '0.7957'}, 'lr': '0.001745'}
+[TRAIN] {'epoch': 2, 'batch': 58, 'global_step': 120, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0641', 'ons_loss': '0.6660', 'total': '0.7301'}, 'lr': '0.001905'}
+[EPOCH_END] Epoch 2/10 complete
+[TRAIN] {'epoch': 3, 'batch': 7, 'global_step': 130, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0514', 'ons_loss': '0.6386', 'total': '0.6900'}, 'lr': '0.002065'}
+[TRAIN] {'epoch': 3, 'batch': 17, 'global_step': 140, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0636', 'ons_loss': '0.6412', 'total': '0.7047'}, 'lr': '0.002225'}
+[TRAIN] {'epoch': 3, 'batch': 27, 'global_step': 150, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0539', 'ons_loss': '0.6068', 'total': '0.6607'}, 'lr': '0.002385'}
+[TRAIN] {'epoch': 3, 'batch': 37, 'global_step': 160, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0760', 'ons_loss': '0.6171', 'total': '0.6931'}, 'lr': '0.002545'}
+[TRAIN] {'epoch': 3, 'batch': 47, 'global_step': 170, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0485', 'ons_loss': '0.5651', 'total': '0.6136'}, 'lr': '0.002705'}
+[TRAIN] {'epoch': 3, 'batch': 57, 'global_step': 180, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0689', 'ons_loss': '0.5651', 'total': '0.6340'}, 'lr': '0.002865'}
+[EPOCH_END] Epoch 3/10 complete
+[TRAIN] {'epoch': 4, 'batch': 6, 'global_step': 190, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0735', 'ons_loss': '0.5561', 'total': '0.6295'}, 'lr': '0.003024'}
+[TRAIN] {'epoch': 4, 'batch': 16, 'global_step': 200, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0651', 'ons_loss': '0.5377', 'total': '0.6028'}, 'lr': '0.003184'}
+[TRAIN] {'epoch': 4, 'batch': 26, 'global_step': 210, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0607', 'ons_loss': '0.5103', 'total': '0.5710'}, 'lr': '0.003344'}
+[TRAIN] {'epoch': 4, 'batch': 36, 'global_step': 220, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0513', 'ons_loss': '0.4805', 'total': '0.5318'}, 'lr': '0.003504'}
+[TRAIN] {'epoch': 4, 'batch': 46, 'global_step': 230, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0438', 'ons_loss': '0.4505', 'total': '0.4943'}, 'lr': '0.003664'}
+[TRAIN] {'epoch': 4, 'batch': 56, 'global_step': 240, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0512', 'ons_loss': '0.4413', 'total': '0.4924'}, 'lr': '0.003824'}
+[EPOCH_END] Epoch 4/10 complete
+[TRAIN] {'epoch': 5, 'batch': 5, 'global_step': 250, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0727', 'ons_loss': '0.4391', 'total': '0.5118'}, 'lr': '0.003984'}
+[TRAIN] {'epoch': 5, 'batch': 15, 'global_step': 260, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0607', 'ons_loss': '0.4044', 'total': '0.4652'}, 'lr': '0.004144'}
+[TRAIN] {'epoch': 5, 'batch': 25, 'global_step': 270, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0584', 'ons_loss': '0.3893', 'total': '0.4478'}, 'lr': '0.004304'}
+[TRAIN] {'epoch': 5, 'batch': 35, 'global_step': 280, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0507', 'ons_loss': '0.3663', 'total': '0.4170'}, 'lr': '0.004464'}
+[TRAIN] {'epoch': 5, 'batch': 45, 'global_step': 290, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0540', 'ons_loss': '0.3474', 'total': '0.4014'}, 'lr': '0.004624'}
+[TRAIN] {'epoch': 5, 'batch': 55, 'global_step': 300, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0608', 'ons_loss': '0.3389', 'total': '0.3998'}, 'lr': '0.004784'}
+[EPOCH_END] Epoch 5/10 complete
+[TRAIN] {'epoch': 6, 'batch': 4, 'global_step': 310, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0541', 'ons_loss': '0.3207', 'total': '0.3747'}, 'lr': '0.004944'}
+[TRAIN] {'epoch': 6, 'batch': 14, 'global_step': 320, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0525', 'ons_loss': '0.3064', 'total': '0.3589'}, 'lr': '0.005104'}
+[TRAIN] {'epoch': 6, 'batch': 24, 'global_step': 330, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0562', 'ons_loss': '0.3004', 'total': '0.3566'}, 'lr': '0.005264'}
+[TRAIN] {'epoch': 6, 'batch': 34, 'global_step': 340, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0668', 'ons_loss': '0.2978', 'total': '0.3646'}, 'lr': '0.005424'}
+[TRAIN] {'epoch': 6, 'batch': 44, 'global_step': 350, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0518', 'ons_loss': '0.2700', 'total': '0.3217'}, 'lr': '0.005584'}
+[TRAIN] {'epoch': 6, 'batch': 54, 'global_step': 360, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0631', 'ons_loss': '0.2829', 'total': '0.3460'}, 'lr': '0.005744'}
+[EPOCH_END] Epoch 6/10 complete
+[TRAIN] {'epoch': 7, 'batch': 3, 'global_step': 370, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0573', 'ons_loss': '0.2592', 'total': '0.3165'}, 'lr': '0.005904'}
+[TRAIN] {'epoch': 7, 'batch': 13, 'global_step': 380, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0673', 'ons_loss': '0.2532', 'total': '0.3205'}, 'lr': '0.006064'}
+[TRAIN] {'epoch': 7, 'batch': 23, 'global_step': 390, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0654', 'ons_loss': '0.2414', 'total': '0.3068'}, 'lr': '0.006224'}
+[TRAIN] {'epoch': 7, 'batch': 33, 'global_step': 400, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0612', 'ons_loss': '0.2318', 'total': '0.2931'}, 'lr': '0.006384'}
+[TRAIN] {'epoch': 7, 'batch': 43, 'global_step': 410, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0558', 'ons_loss': '0.2184', 'total': '0.2742'}, 'lr': '0.006544'}
+[TRAIN] {'epoch': 7, 'batch': 53, 'global_step': 420, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0641', 'ons_loss': '0.2138', 'total': '0.2779'}, 'lr': '0.006704'}
+[EPOCH_END] Epoch 7/10 complete
+[TRAIN] {'epoch': 8, 'batch': 2, 'global_step': 430, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0548', 'ons_loss': '0.2074', 'total': '0.2622'}, 'lr': '0.006864'}
+[TRAIN] {'epoch': 8, 'batch': 12, 'global_step': 440, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0601', 'ons_loss': '0.1991', 'total': '0.2592'}, 'lr': '0.007024'}
+[TRAIN] {'epoch': 8, 'batch': 22, 'global_step': 450, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0681', 'ons_loss': '0.2089', 'total': '0.2771'}, 'lr': '0.007184'}
+[TRAIN] {'epoch': 8, 'batch': 32, 'global_step': 460, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0611', 'ons_loss': '0.1919', 'total': '0.2530'}, 'lr': '0.007344'}
+[TRAIN] {'epoch': 8, 'batch': 42, 'global_step': 470, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0746', 'ons_loss': '0.1952', 'total': '0.2698'}, 'lr': '0.007504'}
+[TRAIN] {'epoch': 8, 'batch': 52, 'global_step': 480, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0647', 'ons_loss': '0.1774', 'total': '0.2421'}, 'lr': '0.007664'}
+[EPOCH_END] Epoch 8/10 complete
+[TRAIN] {'epoch': 9, 'batch': 1, 'global_step': 490, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0715', 'ons_loss': '0.1765', 'total': '0.2480'}, 'lr': '0.007824'}
+[TRAIN] {'epoch': 9, 'batch': 11, 'global_step': 500, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0485', 'ons_loss': '0.1577', 'total': '0.2061'}, 'lr': '0.007984'}
+[TRAIN] {'epoch': 9, 'batch': 21, 'global_step': 510, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0636', 'ons_loss': '0.1655', 'total': '0.2291'}, 'lr': '0.007994'}
+[TRAIN] {'epoch': 9, 'batch': 31, 'global_step': 520, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0640', 'ons_loss': '0.1624', 'total': '0.2264'}, 'lr': '0.007972'}
+[TRAIN] {'epoch': 9, 'batch': 41, 'global_step': 530, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0546', 'ons_loss': '0.1459', 'total': '0.2005'}, 'lr': '0.007934'}
+[TRAIN] {'epoch': 9, 'batch': 51, 'global_step': 540, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0640', 'ons_loss': '0.1513', 'total': '0.2153'}, 'lr': '0.007881'}
+[EPOCH_END] Epoch 9/10 complete
+[TRAIN] {'epoch': 10, 'batch': 0, 'global_step': 550, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0463', 'ons_loss': '0.1357', 'total': '0.1820'}, 'lr': '0.007812'}
+[TRAIN] {'epoch': 10, 'batch': 10, 'global_step': 560, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0596', 'ons_loss': '0.1465', 'total': '0.2060'}, 'lr': '0.007728'}
+[TRAIN] {'epoch': 10, 'batch': 20, 'global_step': 570, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0666', 'ons_loss': '0.1515', 'total': '0.2181'}, 'lr': '0.007630'}
+[TRAIN] {'epoch': 10, 'batch': 30, 'global_step': 580, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0678', 'ons_loss': '0.1388', 'total': '0.2066'}, 'lr': '0.007517'}
+[TRAIN] {'epoch': 10, 'batch': 40, 'global_step': 590, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0629', 'ons_loss': '0.1381', 'total': '0.2009'}, 'lr': '0.007391'}
+[TRAIN] {'epoch': 10, 'batch': 50, 'global_step': 600, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0534', 'ons_loss': '0.1270', 'total': '0.1804'}, 'lr': '0.007251'}
+[TRAIN] {'epoch': 10, 'batch': 60, 'global_step': 610, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0689', 'ons_loss': '0.1688', 'total': '0.2377'}, 'lr': '0.007098'}
+[EPOCH_END] Epoch 10/10 complete
+[DONE] Training complete.
+[CONFIG] {'DATA_PATH': 'C:/Users/alau2/Documents/Dataset/maestro-v3.0.0', 'OUTPUT_DIR': 'out', 'SNAPSHOT_INPATH': None, 'RANDOM_SEED': 2545042, 'SAMPLE_RATE': 16000, 'WIN_SIZE': 2048, 'HOP_SIZE': 512, 'N_MELS': 229, 'MEL_FMIN': 30, 'MEL_FMAX': 8000, 'TRAIN_BS': 16, 'TRAIN_BATCH_SECS': 5.0, 'DATALOADER_WORKERS': 4, 'CONV1X1': [200, 200], 'BATCH_NORM': 0.95, 'DROPOUT': 0.15, 'LEAKY_RELU_SLOPE': 0.1, 'LR_MAX': 0.008, 'LR_WARMUP': 0.5, 'LR_PERIOD': 1000, 'LR_DECAY': 0.975, 'LR_SLOWDOWN': 1.0, 'MOMENTUM': 0.95, 'WEIGHT_DECAY': 0.0003, 'ONSET_POSITIVES_WEIGHT': 8.0, 'VEL_LOSS_LAMBDA': 10.0, 'TRAINABLE_ONSETS': True, 'DECODER_GAUSS_STD': 1.0, 'DECODER_GAUSS_KSIZE': 11, 'NUM_EPOCHS': 10, 'TRAIN_LOG_EVERY': 10, 'XV_EVERY': 1000, 'XV_CHUNK_SIZE': 600.0, 'XV_CHUNK_OVERLAP': 2.5, 'XV_THRESHOLDS': [0.7, 0.725, 0.75, 0.775, 0.8], 'XV_TOLERANCE_SECS': 0.05, 'XV_TOLERANCE_VEL': 0.1}
+[DATASET] Train: 962 samples, 61 batches/epoch
+[DATASET] XV: 137 samples
+[START] Training for 10 epochs, seed=2545042, device=cuda
+[TRAIN] {'epoch': 1, 'batch': 9, 'global_step': 10, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0835', 'ons_loss': '0.9304', 'total': '1.0139'}, 'lr': '0.000145'}
+[TRAIN] {'epoch': 1, 'batch': 19, 'global_step': 20, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0979', 'ons_loss': '0.8875', 'total': '0.9855'}, 'lr': '0.000305'}
+[TRAIN] {'epoch': 1, 'batch': 29, 'global_step': 30, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0971', 'ons_loss': '0.8418', 'total': '0.9389'}, 'lr': '0.000465'}
+[TRAIN] {'epoch': 1, 'batch': 39, 'global_step': 40, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0916', 'ons_loss': '0.8178', 'total': '0.9094'}, 'lr': '0.000625'}
+[TRAIN] {'epoch': 1, 'batch': 49, 'global_step': 50, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0775', 'ons_loss': '0.7841', 'total': '0.8616'}, 'lr': '0.000785'}
+[TRAIN] {'epoch': 1, 'batch': 59, 'global_step': 60, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0790', 'ons_loss': '0.7708', 'total': '0.8498'}, 'lr': '0.000945'}
+[EPOCH_END] Epoch 1/10 complete
+[TRAIN] {'epoch': 2, 'batch': 8, 'global_step': 70, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0807', 'ons_loss': '0.7531', 'total': '0.8338'}, 'lr': '0.001105'}
+[TRAIN] {'epoch': 2, 'batch': 18, 'global_step': 80, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0876', 'ons_loss': '0.7534', 'total': '0.8410'}, 'lr': '0.001265'}
+[TRAIN] {'epoch': 2, 'batch': 28, 'global_step': 90, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0774', 'ons_loss': '0.7360', 'total': '0.8134'}, 'lr': '0.001425'}
+[TRAIN] {'epoch': 2, 'batch': 38, 'global_step': 100, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0676', 'ons_loss': '0.6998', 'total': '0.7674'}, 'lr': '0.001585'}
+[TRAIN] {'epoch': 2, 'batch': 48, 'global_step': 110, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0710', 'ons_loss': '0.6961', 'total': '0.7671'}, 'lr': '0.001745'}
+[TRAIN] {'epoch': 2, 'batch': 58, 'global_step': 120, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0711', 'ons_loss': '0.6867', 'total': '0.7578'}, 'lr': '0.001905'}
+[EPOCH_END] Epoch 2/10 complete
+[TRAIN] {'epoch': 3, 'batch': 7, 'global_step': 130, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0902', 'ons_loss': '0.6872', 'total': '0.7774'}, 'lr': '0.002065'}
+[TRAIN] {'epoch': 3, 'batch': 17, 'global_step': 140, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0614', 'ons_loss': '0.6392', 'total': '0.7006'}, 'lr': '0.002225'}
+[TRAIN] {'epoch': 3, 'batch': 27, 'global_step': 150, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0871', 'ons_loss': '0.6415', 'total': '0.7286'}, 'lr': '0.002385'}
+[TRAIN] {'epoch': 3, 'batch': 37, 'global_step': 160, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0758', 'ons_loss': '0.6076', 'total': '0.6835'}, 'lr': '0.002545'}
+[TRAIN] {'epoch': 3, 'batch': 47, 'global_step': 170, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0899', 'ons_loss': '0.6108', 'total': '0.7007'}, 'lr': '0.002705'}
+[TRAIN] {'epoch': 3, 'batch': 57, 'global_step': 180, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0869', 'ons_loss': '0.5954', 'total': '0.6823'}, 'lr': '0.002865'}
+[EPOCH_END] Epoch 3/10 complete
+[TRAIN] {'epoch': 4, 'batch': 6, 'global_step': 190, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0693', 'ons_loss': '0.5609', 'total': '0.6303'}, 'lr': '0.003024'}
+[TRAIN] {'epoch': 4, 'batch': 16, 'global_step': 200, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0761', 'ons_loss': '0.5501', 'total': '0.6262'}, 'lr': '0.003184'}
+[TRAIN] {'epoch': 4, 'batch': 26, 'global_step': 210, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0755', 'ons_loss': '0.5245', 'total': '0.6000'}, 'lr': '0.003344'}
+[TRAIN] {'epoch': 4, 'batch': 36, 'global_step': 220, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0850', 'ons_loss': '0.5243', 'total': '0.6093'}, 'lr': '0.003504'}
+[TRAIN] {'epoch': 4, 'batch': 46, 'global_step': 230, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0726', 'ons_loss': '0.4837', 'total': '0.5562'}, 'lr': '0.003664'}
+[TRAIN] {'epoch': 4, 'batch': 56, 'global_step': 240, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0758', 'ons_loss': '0.4660', 'total': '0.5419'}, 'lr': '0.003824'}
+[EPOCH_END] Epoch 4/10 complete
+[TRAIN] {'epoch': 5, 'batch': 5, 'global_step': 250, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0781', 'ons_loss': '0.4448', 'total': '0.5228'}, 'lr': '0.003984'}
+[TRAIN] {'epoch': 5, 'batch': 15, 'global_step': 260, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0802', 'ons_loss': '0.4295', 'total': '0.5097'}, 'lr': '0.004144'}
+[TRAIN] {'epoch': 5, 'batch': 25, 'global_step': 270, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0839', 'ons_loss': '0.4114', 'total': '0.4953'}, 'lr': '0.004304'}
+[TRAIN] {'epoch': 5, 'batch': 35, 'global_step': 280, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0806', 'ons_loss': '0.3914', 'total': '0.4720'}, 'lr': '0.004464'}
+[TRAIN] {'epoch': 5, 'batch': 45, 'global_step': 290, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0813', 'ons_loss': '0.3692', 'total': '0.4505'}, 'lr': '0.004624'}
+[TRAIN] {'epoch': 5, 'batch': 55, 'global_step': 300, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0561', 'ons_loss': '0.3467', 'total': '0.4028'}, 'lr': '0.004784'}
+[EPOCH_END] Epoch 5/10 complete
+[TRAIN] {'epoch': 6, 'batch': 4, 'global_step': 310, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0629', 'ons_loss': '0.3337', 'total': '0.3965'}, 'lr': '0.004944'}
+[TRAIN] {'epoch': 6, 'batch': 14, 'global_step': 320, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0909', 'ons_loss': '0.3343', 'total': '0.4252'}, 'lr': '0.005104'}
+[TRAIN] {'epoch': 6, 'batch': 24, 'global_step': 330, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0834', 'ons_loss': '0.3225', 'total': '0.4059'}, 'lr': '0.005264'}
+[TRAIN] {'epoch': 6, 'batch': 34, 'global_step': 340, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0695', 'ons_loss': '0.3022', 'total': '0.3717'}, 'lr': '0.005424'}
+[TRAIN] {'epoch': 6, 'batch': 44, 'global_step': 350, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0798', 'ons_loss': '0.2878', 'total': '0.3676'}, 'lr': '0.005584'}
+[TRAIN] {'epoch': 6, 'batch': 54, 'global_step': 360, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0588', 'ons_loss': '0.2652', 'total': '0.3240'}, 'lr': '0.005744'}
+[EPOCH_END] Epoch 6/10 complete
+[TRAIN] {'epoch': 7, 'batch': 3, 'global_step': 370, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0807', 'ons_loss': '0.2764', 'total': '0.3571'}, 'lr': '0.005904'}
+[TRAIN] {'epoch': 7, 'batch': 13, 'global_step': 380, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0886', 'ons_loss': '0.2758', 'total': '0.3643'}, 'lr': '0.006064'}
+[TRAIN] {'epoch': 7, 'batch': 23, 'global_step': 390, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0789', 'ons_loss': '0.2490', 'total': '0.3279'}, 'lr': '0.006224'}
+[TRAIN] {'epoch': 7, 'batch': 33, 'global_step': 400, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0608', 'ons_loss': '0.2331', 'total': '0.2939'}, 'lr': '0.006384'}
+[TRAIN] {'epoch': 7, 'batch': 43, 'global_step': 410, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0723', 'ons_loss': '0.2351', 'total': '0.3074'}, 'lr': '0.006544'}
+[TRAIN] {'epoch': 7, 'batch': 53, 'global_step': 420, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0648', 'ons_loss': '0.2174', 'total': '0.2822'}, 'lr': '0.006704'}
+[EPOCH_END] Epoch 7/10 complete
+[TRAIN] {'epoch': 8, 'batch': 2, 'global_step': 430, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0678', 'ons_loss': '0.2158', 'total': '0.2835'}, 'lr': '0.006864'}
+[TRAIN] {'epoch': 8, 'batch': 12, 'global_step': 440, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0605', 'ons_loss': '0.1967', 'total': '0.2572'}, 'lr': '0.007024'}
+[TRAIN] {'epoch': 8, 'batch': 22, 'global_step': 450, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0629', 'ons_loss': '0.1902', 'total': '0.2531'}, 'lr': '0.007184'}
+[TRAIN] {'epoch': 8, 'batch': 32, 'global_step': 460, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0568', 'ons_loss': '0.1867', 'total': '0.2435'}, 'lr': '0.007344'}
+[TRAIN] {'epoch': 8, 'batch': 42, 'global_step': 470, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0764', 'ons_loss': '0.1976', 'total': '0.2740'}, 'lr': '0.007504'}
+[TRAIN] {'epoch': 8, 'batch': 52, 'global_step': 480, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0618', 'ons_loss': '0.1722', 'total': '0.2340'}, 'lr': '0.007664'}
+[EPOCH_END] Epoch 8/10 complete
+[TRAIN] {'epoch': 9, 'batch': 1, 'global_step': 490, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0856', 'ons_loss': '0.1967', 'total': '0.2823'}, 'lr': '0.007824'}
+[TRAIN] {'epoch': 9, 'batch': 11, 'global_step': 500, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0682', 'ons_loss': '0.1692', 'total': '0.2374'}, 'lr': '0.007984'}
+[TRAIN] {'epoch': 9, 'batch': 21, 'global_step': 510, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0740', 'ons_loss': '0.1708', 'total': '0.2448'}, 'lr': '0.007994'}
+[TRAIN] {'epoch': 9, 'batch': 31, 'global_step': 520, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0779', 'ons_loss': '0.1592', 'total': '0.2371'}, 'lr': '0.007972'}
+[TRAIN] {'epoch': 9, 'batch': 41, 'global_step': 530, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0629', 'ons_loss': '0.1446', 'total': '0.2075'}, 'lr': '0.007934'}
+[TRAIN] {'epoch': 9, 'batch': 51, 'global_step': 540, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0559', 'ons_loss': '0.1419', 'total': '0.1978'}, 'lr': '0.007881'}
+[EPOCH_END] Epoch 9/10 complete
+[TRAIN] {'epoch': 10, 'batch': 0, 'global_step': 550, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0641', 'ons_loss': '0.1460', 'total': '0.2101'}, 'lr': '0.007812'}
+[TRAIN] {'epoch': 10, 'batch': 10, 'global_step': 560, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0711', 'ons_loss': '0.1522', 'total': '0.2233'}, 'lr': '0.007728'}
+[TRAIN] {'epoch': 10, 'batch': 20, 'global_step': 570, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0606', 'ons_loss': '0.1341', 'total': '0.1947'}, 'lr': '0.007630'}
+[TRAIN] {'epoch': 10, 'batch': 30, 'global_step': 580, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0711', 'ons_loss': '0.1515', 'total': '0.2226'}, 'lr': '0.007517'}
+[TRAIN] {'epoch': 10, 'batch': 40, 'global_step': 590, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0584', 'ons_loss': '0.1374', 'total': '0.1958'}, 'lr': '0.007391'}
+[TRAIN] {'epoch': 10, 'batch': 50, 'global_step': 600, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0852', 'ons_loss': '0.1507', 'total': '0.2360'}, 'lr': '0.007251'}
+[TRAIN] {'epoch': 10, 'batch': 60, 'global_step': 610, 'batches_per_epoch': 61, 'losses': {'vel_loss': '0.0720', 'ons_loss': '0.2293', 'total': '0.3014'}, 'lr': '0.007098'}
+[EPOCH_END] Epoch 10/10 complete
+[DONE] Training complete.
