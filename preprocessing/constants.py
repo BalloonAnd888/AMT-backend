@@ -19,3 +19,4 @@ SEQUENCE_LENGTH = 327680
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 DATA_PATH = "C:/Users/alau2/Documents/Dataset/maestro-v3.0.0"
 MAPS_DATA_PATH = "C:/Users/alau2/Documents/Dataset/MAPS"
+GIANTMIDI_DATA_PATH = "C:/Users/alau2/Documents/Dataset/giantmidis_v1.2"

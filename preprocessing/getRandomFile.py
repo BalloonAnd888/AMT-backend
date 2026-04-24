@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 from preprocessing.midi import parse_midi
-from preprocessing.dataset import MAESTRO, MAPS
+from preprocessing.dataset import MAESTRO, MAPS, GIANTMIDI
 from preprocessing.constants import *
 from preprocessing.visualize import visualizeFile
 
@@ -19,16 +19,24 @@ def processRandomFile(dataset_root, dataset):
         midi_path = os.path.join(dataset_root, row['midi_filename'])
 
         ds = MAESTRO(path=dataset_root, groups=[], sequence_length=SEQUENCE_LENGTH)
-    else:
+    elif dataset.lower() == "maps":
         ds = MAPS(path=dataset_root, groups=[], sequence_length=SEQUENCE_LENGTH)
         all_files = []
         for g in ds.available_groups():
             all_files.extend(ds.files(g))
             
         if not all_files:
-            raise FileNotFoundError(f"Could not find any files in {dataset_root}. Make sure it's a valid MAESTRO or MAPS dataset.")
+            raise FileNotFoundError(f"Could not find any files in {dataset_root}. Make sure it's a valid MAPS dataset.")
             
         audio_path, midi_path = random.choice(all_files)
+    elif dataset.lower() == "giantmidi":
+        ds = GIANTMIDI(path=dataset_root, groups=[], sequence_length=SEQUENCE_LENGTH)
+        all_files = ds.files('all')
+        if not all_files:
+            raise FileNotFoundError(f"Could not find any files in {dataset_root}. Make sure it's a valid GIANTMIDI dataset.")
+        audio_path, midi_path = random.choice(all_files)
+    else:
+        raise ValueError(f"Unsupported dataset: {dataset}")
     
     raw_data = ds.load(audio_path, midi_path)
     
@@ -55,8 +63,14 @@ def processRandomFile(dataset_root, dataset):
     visualizeFile(processed_data)
 
 if __name__ == "__main__":
-    dataset_choice = "maestro"  # Change to "maps" to pick from MAPS_DATA_PATH
-    path_to_check = DATA_PATH if dataset_choice == "maestro" else MAPS_DATA_PATH
+    dataset_choice = "giantmidi"  # "maestro", "maps", "giantmidi"
+    
+    if dataset_choice == "maestro":
+        path_to_check = DATA_PATH
+    elif dataset_choice == "maps":
+        path_to_check = MAPS_DATA_PATH
+    else:
+        path_to_check = GIANTMIDI_DATA_PATH
 
     if os.path.exists(path_to_check):
         processRandomFile(path_to_check, dataset_choice)

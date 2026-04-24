@@ -1,6 +1,6 @@
 import os
 from preprocessing.constants import *
-from preprocessing.dataset import MAESTRO, MAPS
+from preprocessing.dataset import MAESTRO, MAPS, GIANTMIDI
 
 def loadDataset(dataset_name="maestro", dataset_root=None):
     if dataset_name.lower() == "maestro":
@@ -15,6 +15,12 @@ def loadDataset(dataset_name="maestro", dataset_root=None):
         train_dataset = MAPS(path=path, groups=['train'], sequence_length=SEQUENCE_LENGTH)
         validation_dataset = MAPS(path=path, groups=['validation'], sequence_length=SEQUENCE_LENGTH)
         test_dataset = MAPS(path=path, groups=['test'], sequence_length=SEQUENCE_LENGTH)
+    elif dataset_name.lower() == "giantmidi":
+        path = dataset_root if dataset_root else GIANTMIDI_DATA_PATH
+        print(f"Initializing GIANTMIDI dataset from {path}...")
+        train_dataset = GIANTMIDI(path=path, groups=['train'], sequence_length=SEQUENCE_LENGTH)
+        validation_dataset = GIANTMIDI(path=path, groups=['validation'], sequence_length=SEQUENCE_LENGTH)
+        test_dataset = GIANTMIDI(path=path, groups=['test'], sequence_length=SEQUENCE_LENGTH)
     else:
         print(f"Error: Unsupported dataset '{dataset_name}'")
         return 
@@ -34,8 +40,14 @@ def loadDataset(dataset_name="maestro", dataset_root=None):
 if __name__ == "__main__":
     print(f"Using device: {DEVICE}")
 
-    dataset_choice = "maestro"  # Change to "maps" to load MAPS dataset
-    path_to_check = DATA_PATH if dataset_choice == "maestro" else MAPS_DATA_PATH
+    dataset_choice = "giantmidi"  # "maestro", "maps", "giantmidi"
+    
+    if dataset_choice == "maestro":
+        path_to_check = DATA_PATH
+    elif dataset_choice == "maps":
+        path_to_check = MAPS_DATA_PATH
+    else:
+        path_to_check = GIANTMIDI_DATA_PATH
 
     if os.path.exists(path_to_check):
         loadDataset(dataset_choice, path_to_check)
