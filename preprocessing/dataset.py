@@ -149,15 +149,36 @@ class MAESTRO(PianoRollAudioDataset):
                 midi_file = os.path.join(self.path, row['midi_filename'])
                 files.append((audio_file, midi_file))
 
+        return files
+
+class MAPS(PianoRollAudioDataset):
+    def __init__(self, path, groups=None, sequence_length=None, seed=42, device=DEVICE):
+        super().__init__(path, groups if groups is not None else ['ENSTDkAm', 'ENSTDkCl'], sequence_length, seed, device)
+
+    @classmethod
+    def available_groups(cls):
+        return ['AkPnBcht', 'AkPnBsdf', 'AkPnCGdD', 'AkPnStgb', 'ENSTDkAm', 'ENSTDkCl', 'SptkBGAm', 'SptkBGCl', 'StbgTGd2']
+
+    def files(self, group):
+        if group == 'train':
+            groups = ['AkPnBcht', 'AkPnBsdf', 'AkPnCGdD', 'AkPnStgb', 'SptkBGAm', 'SptkBGCl']
+        elif group == 'validation':
+            groups = ['StbgTGd2']
+        elif group == 'test':
+            groups = ['ENSTDkAm', 'ENSTDkCl']
+        else:
+            groups = [group]
+
         result = []
-        for audio_path, midi_path in files:
-            tsv_filename = midi_path.rsplit('.', 1)[0] + '.tsv'
-
-            if not os.path.exists(tsv_filename):
-                midi_data = parse_midi(midi_path)
-                midi_array = np.array([[n.start, n.end, n.pitch, n.velocity] for n in midi_data])
-                np.savetxt(tsv_filename, midi_array, fmt='%.6f', delimiter='\t', header='onset\toffset\tnote\tvelocity')
-
-            result.append((audio_path, tsv_filename))
+        for g in groups:
+            wavs = glob(os.path.join(self.path, g, 'MUS', '*.wav'))
+            mids = [w.rsplit('.', 1)[0] + '.mid' for w in wavs]
+    
+            assert(all(os.path.isfile(wav) for wav in wavs))
+            assert(all(os.path.isfile(mid) for mid in mids))
+    
+            for audio_path, midi_path in zip(wavs, mids):
+                result.append((audio_path, midi_path))
         
-        return result 
+        return sorted(result)
+    
