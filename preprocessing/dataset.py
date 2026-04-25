@@ -39,16 +39,33 @@ class PianoRollAudioDataset(Dataset):
         if self.sequence_length is not None:
             audio_length = len(data['audio'])
 
-            step_begin = self.random.randint(audio_length - self.sequence_length) // HOP_LENGTH 
             n_steps = self.sequence_length // HOP_LENGTH
-            step_end = step_begin + n_steps 
 
-            begin = step_begin * HOP_LENGTH 
-            end = begin + self.sequence_length 
+            if audio_length <= self.sequence_length:
+                step_begin = 0
+                step_end = len(data['label'])
+                begin = 0
+                end = audio_length
+            else:
+                step_begin = self.random.randint(audio_length - self.sequence_length) // HOP_LENGTH 
+                step_end = step_begin + n_steps 
+
+                begin = step_begin * HOP_LENGTH 
+                end = begin + self.sequence_length 
 
             result['audio'] = data['audio'][begin:end].to(self.device)
             result['label'] = data['label'][step_begin:step_end, :].to(self.device) 
             result['velocity'] = data['velocity'][step_begin:step_end, :].to(self.device)
+
+            # Pad if shorter than sequence_length
+            if result['audio'].shape[-1] < self.sequence_length:
+                audio_pad_amount = self.sequence_length - result['audio'].shape[-1]
+                result['audio'] = torch.nn.functional.pad(result['audio'], (0, audio_pad_amount))
+                
+                label_pad_amount = n_steps - result['label'].shape[0]
+                if label_pad_amount > 0:
+                    result['label'] = torch.nn.functional.pad(result['label'], (0, 0, 0, label_pad_amount))
+                    result['velocity'] = torch.nn.functional.pad(result['velocity'], (0, 0, 0, label_pad_amount))
         else:
             result['audio'] = data['audio'].to(self.device)
             result['label'] = data['label'].to(self.device)
