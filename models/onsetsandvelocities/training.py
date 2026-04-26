@@ -382,8 +382,11 @@ if __name__ == "__main__":
         print("Loading validation dataset...")
         xv_dataset = GIANTMIDI(path=CONF.GIANTMIDI_DATA_PATH, groups=['validation'], sequence_length=None, device='cpu')
 
-    # train_size = len(train_dataset) // 4 #
-    # train_dataset = Subset(train_dataset, range(train_size)) #
+    train_size = len(train_dataset) // 10 #
+    train_dataset = Subset(train_dataset, range(train_size)) #
+
+    val_size = len(xv_dataset) // 10
+    xv_dataset = Subset(xv_dataset, range(val_size))
 
     collate_fn = make_collate_fn()
 
@@ -481,8 +484,8 @@ if __name__ == "__main__":
         audio = audio / (audio.abs().max() + 1e-8)
 
         with torch.no_grad():
-            mel = mel_extractor(audio)       # (n_mels, t)
-            mel = mel.unsqueeze(0)           # (1, n_mels, t)
+            mel = mel_extractor(audio)
+            mel = mel.reshape(1, CONF.N_MELS, -1)
             onset_pred, vel_pred = strided_inference(
                 model_inference_xv, mel, XV_CHUNK_SIZE, XV_CHUNK_OVERLAP)
 
