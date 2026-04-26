@@ -10,13 +10,12 @@ from tqdm import tqdm
 
 from models.onsetsandframes.evaluate import evaluate
 from models.onsetsandframes.of import OnsetsAndFrames
-from preprocessing.dataset import MAESTRO
+from preprocessing.dataset import MAESTRO, MAPS, GIANTMIDI
 from models.utils.constants import DEVICE
 from models.onsetsandframes.utils import summary, cycle
-from preprocessing.constants import MAX_MIDI, MIN_MIDI, N_MELS, SEQUENCE_LENGTH, DATA_PATH
+from preprocessing.constants import MAPS_DATA_PATH, MAX_MIDI, MIN_MIDI, N_MELS, SEQUENCE_LENGTH, DATA_PATH, GIANTMIDI_DATA_PATH
 
-ITERATIONS = 5000
-# ITERATIONS = 500000
+ITERATIONS = 50000
 CHECKPOINT_INTERVAL = 1000
 
 BATCH_SIZE = 8
@@ -41,7 +40,7 @@ VALIDATION_INTERVAL = 500
 timestamp = datetime.now().strftime('%y%m%d-%H%M%S')
 logdir = os.path.join(os.path.dirname(__file__), 'models')
 
-def train():
+def train(dataset: str):
     RESUME_ITERATION = None
     os.makedirs(logdir, exist_ok=True)
 
@@ -52,10 +51,17 @@ def train():
         train_groups = list(all_years - {str(LEAVE_ONE_OUT)})
         validation_groups = [str(LEAVE_ONE_OUT)]
 
-    dataset = MAESTRO(path=DATA_PATH, groups=train_groups, sequence_length=SEQUENCE_LENGTH)
-    validation_dataset = MAESTRO(path=DATA_PATH,groups=validation_groups, sequence_length=SEQUENCE_LENGTH)
+    if dataset == "maestro":
+        train_dataset = MAESTRO(path=DATA_PATH, groups=train_groups, sequence_length=SEQUENCE_LENGTH)
+        validation_dataset = MAESTRO(path=DATA_PATH, groups=validation_groups, sequence_length=SEQUENCE_LENGTH)
+    elif dataset == "maps":
+        train_dataset = MAPS(path=MAPS_DATA_PATH, groups=['train'], sequence_length=SEQUENCE_LENGTH)
+        validation_dataset = MAPS(path=MAPS_DATA_PATH, groups=['validation'], sequence_length=SEQUENCE_LENGTH)
+    elif dataset == "giantmidi":
+        train_dataset = GIANTMIDI(path=GIANTMIDI_DATA_PATH, groups=['train'], sequence_length=SEQUENCE_LENGTH)
+        validation_dataset = GIANTMIDI(path=GIANTMIDI_DATA_PATH, groups=['validation'], sequence_length=SEQUENCE_LENGTH)
 
-    loader = DataLoader(dataset, BATCH_SIZE, shuffle=True, drop_last=True)
+    loader = DataLoader(train_dataset, BATCH_SIZE, shuffle=True, drop_last=True)
 
     if RESUME_ITERATION is None:
         model = OnsetsAndFrames(N_MELS, MAX_MIDI - MIN_MIDI + 1, MODEL_COMPLEXITY).to(DEVICE)
@@ -97,7 +103,8 @@ def train():
                     print(f'validation/{key.replace(" ", "_")}: {np.mean(value)}')
             model.train()
 
-    torch.save(model.state_dict(), os.path.join(logdir, f'onsetsandframes-{timestamp}-{i}.pt'))
+    torch.save(model.state_dict(), os.path.join(logdir, f'onsetsandframes-{dataset}-{timestamp}-{i}.pt'))
 
 if __name__ == '__main__':
-    train()
+    dataset = "maps" # "maestro", "maps", "giantmidi"
+    train(dataset)

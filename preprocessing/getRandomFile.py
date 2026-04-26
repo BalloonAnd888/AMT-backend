@@ -1,38 +1,44 @@
 import os
+import random
 import pandas as pd
 import numpy as np
 
 from preprocessing.midi import parse_midi
-from preprocessing.dataset import MAESTRO
+from preprocessing.dataset import MAESTRO, MAPS, GIANTMIDI
 from preprocessing.constants import *
 from preprocessing.visualize import visualizeFile
 
-def processRandomFile(dataset_root):
+def processRandomFile(dataset_root, dataset):
     csv_path = os.path.join(dataset_root, 'maestro-v3.0.0.csv')
 
-    if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"Could not find metadata CSV in {dataset_root}")
+    if dataset.lower() == "maestro" and os.path.exists(csv_path):
+        df = pd.read_csv(csv_path)
+        row = df.sample(1).iloc[0]
+        
+        audio_path = os.path.join(dataset_root, row['audio_filename'])
+        midi_path = os.path.join(dataset_root, row['midi_filename'])
 
-    df = pd.read_csv(csv_path)
-    row = df.sample(1).iloc[0]
+        ds = MAESTRO(path=dataset_root, groups=[], sequence_length=SEQUENCE_LENGTH)
+    elif dataset.lower() == "maps":
+        ds = MAPS(path=dataset_root, groups=[], sequence_length=SEQUENCE_LENGTH)
+        all_files = []
+        for g in ds.available_groups():
+            all_files.extend(ds.files(g))
+            
+        if not all_files:
+            raise FileNotFoundError(f"Could not find any files in {dataset_root}. Make sure it's a valid MAPS dataset.")
+            
+        audio_path, midi_path = random.choice(all_files)
+    elif dataset.lower() == "giantmidi":
+        ds = GIANTMIDI(path=dataset_root, groups=[], sequence_length=SEQUENCE_LENGTH)
+        all_files = ds.files('all')
+        if not all_files:
+            raise FileNotFoundError(f"Could not find any files in {dataset_root}. Make sure it's a valid GIANTMIDI dataset.")
+        audio_path, midi_path = random.choice(all_files)
+    else:
+        raise ValueError(f"Unsupported dataset: {dataset}")
     
-    audio_path = os.path.join(dataset_root, row['audio_filename'])
-    midi_path = os.path.join(dataset_root, row['midi_filename'])
-    tsv_path = midi_path.rsplit('.', 1)[0] + '.tsv'
-    
-    if not os.path.exists(tsv_path):
-        print(f"Generating TSV for {row['midi_filename']}...")
-        try:
-            midi_notes = parse_midi(midi_path)
-            midi_list = [[n.start, n.end, n.pitch, n.velocity] for n in midi_notes]
-            np.savetxt(tsv_path, np.array(midi_list), fmt='%.6f', delimiter='\t', header='onset\toffset\tnote\tvelocity')
-        except Exception as e:
-            print(f"Error parsing MIDI: {e}")
-            return
-
-    ds = MAESTRO(path=dataset_root, groups=[], sequence_length=SEQUENCE_LENGTH)
-    
-    raw_data = ds.load(audio_path, tsv_path)
+    raw_data = ds.load(audio_path, midi_path)
     
     audio_len = len(raw_data['audio'])
     
@@ -57,8 +63,17 @@ def processRandomFile(dataset_root):
     visualizeFile(processed_data)
 
 if __name__ == "__main__":
-    if os.path.exists(DATA_PATH):
-        processRandomFile(DATA_PATH)
+    dataset_choice = "giantmidi"  # "maestro", "maps", "giantmidi"
+    
+    if dataset_choice == "maestro":
+        path_to_check = DATA_PATH
+    elif dataset_choice == "maps":
+        path_to_check = MAPS_DATA_PATH
     else:
-        print(f"Path not found: {DATA_PATH}")
+        path_to_check = GIANTMIDI_DATA_PATH
+
+    if os.path.exists(path_to_check):
+        processRandomFile(path_to_check, dataset_choice)
+    else:
+        print(f"Path not found: {path_to_check}")
         

@@ -26,25 +26,46 @@ class PianoRollAudioDataset(Dataset):
         
         for group in self.groups:
             for input_files in tqdm(self.files(group), desc='Loading group %s' % group):
-                self.data.append(self.load(*input_files))
+                audio_path, tsv_path = input_files
+                saved_data_path = audio_path.rsplit('.', 1)[0] + '.pt'
+                if not os.path.exists(saved_data_path):
+                    self.load(*input_files)
+                self.data.append(input_files)
     
     def __getitem__(self, index):
-        data = self.data[index]
+        data = self.load(*self.data[index])
         result = dict(path=data['path'])
 
         if self.sequence_length is not None:
             audio_length = len(data['audio'])
 
-            step_begin = self.random.randint(audio_length - self.sequence_length) // HOP_LENGTH 
             n_steps = self.sequence_length // HOP_LENGTH
-            step_end = step_begin + n_steps 
 
-            begin = step_begin * HOP_LENGTH 
-            end = begin + self.sequence_length 
+            if audio_length <= self.sequence_length:
+                step_begin = 0
+                step_end = len(data['label'])
+                begin = 0
+                end = audio_length
+            else:
+                step_begin = self.random.randint(audio_length - self.sequence_length) // HOP_LENGTH 
+                step_end = step_begin + n_steps 
+
+                begin = step_begin * HOP_LENGTH 
+                end = begin + self.sequence_length 
 
             result['audio'] = data['audio'][begin:end].to(self.device)
             result['label'] = data['label'][step_begin:step_end, :].to(self.device) 
             result['velocity'] = data['velocity'][step_begin:step_end, :].to(self.device)
+
+            # Pad if shorter than sequence_length
+            if result['audio'].shape[-1] < self.sequence_length:
+                audio_pad_amount = self.sequence_length - result['audio'].shape[-1]
+                result['audio'] = torch.nn.functional.pad(result['audio'], (0, audio_pad_amount))
+                
+                label_pad_amount = n_steps - result['label'].shape[0]
+                if label_pad_amount > 0:
+                    result['label'] = torch.nn.functional.pad(result['label'], (0, 0, 0, label_pad_amount))
+                    result['velocity'] = torch.nn.functional.pad(result['velocity'], (0, 0, 0, label_pad_amount))
         else:
             result['audio'] = data['audio'].to(self.device)
             result['label'] = data['label'].to(self.device)
@@ -95,7 +116,13 @@ class PianoRollAudioDataset(Dataset):
         label = torch.zeros(n_steps, N_KEYS, dtype=torch.uint8)
         velocity = torch.zeros(n_steps, N_KEYS, dtype=torch.uint8)
 
-        midi = np.loadtxt(tsv_path, delimiter='\t', skiprows=1)
+        if tsv_path.lower().endswith('.tsv'):
+            midi = np.loadtxt(tsv_path, delimiter='\t', skiprows=1)
+        else:
+            parsed_notes = parse_midi(tsv_path)
+            midi = np.array([[n.start, n.end, n.pitch, n.velocity] for n in parsed_notes])
+            if len(midi) == 0:
+                midi = np.zeros((0, 4))
 
         for onset, offset, note, vel in midi:
             left = int(round(onset * SAMPLE_RATE / HOP_LENGTH))
@@ -149,15 +176,72 @@ class MAESTRO(PianoRollAudioDataset):
                 midi_file = os.path.join(self.path, row['midi_filename'])
                 files.append((audio_file, midi_file))
 
+        return files
+
+class MAPS(PianoRollAudioDataset):
+    def __init__(self, path, groups=None, sequence_length=None, seed=42, device=DEVICE):
+        super().__init__(path, groups if groups is not None else ['ENSTDkAm', 'ENSTDkCl'], sequence_length, seed, device)
+
+    @classmethod
+    def available_groups(cls):
+        return ['AkPnBcht', 'AkPnBsdf', 'AkPnCGdD', 'AkPnStgb', 'ENSTDkAm', 'ENSTDkCl', 'SptkBGAm', 'SptkBGCl', 'StbgTGd2']
+
+    def files(self, group):
+        if group == 'train':
+            groups = ['AkPnBcht', 'AkPnBsdf', 'AkPnCGdD', 'AkPnStgb', 'SptkBGAm', 'SptkBGCl']
+        elif group == 'validation':
+            groups = ['StbgTGd2']
+        elif group == 'test':
+            groups = ['ENSTDkAm', 'ENSTDkCl']
+        else:
+            groups = [group]
+
         result = []
-        for audio_path, midi_path in files:
-            tsv_filename = midi_path.rsplit('.', 1)[0] + '.tsv'
-
-            if not os.path.exists(tsv_filename):
-                midi_data = parse_midi(midi_path)
-                midi_array = np.array([[n.start, n.end, n.pitch, n.velocity] for n in midi_data])
-                np.savetxt(tsv_filename, midi_array, fmt='%.6f', delimiter='\t', header='onset\toffset\tnote\tvelocity')
-
-            result.append((audio_path, tsv_filename))
+        for g in groups:
+            wavs = glob(os.path.join(self.path, g, 'MUS', '*.wav'))
+            mids = [w.rsplit('.', 1)[0] + '.mid' for w in wavs]
+    
+            assert(all(os.path.isfile(wav) for wav in wavs))
+            assert(all(os.path.isfile(mid) for mid in mids))
+    
+            for audio_path, midi_path in zip(wavs, mids):
+                result.append((audio_path, midi_path))
         
-        return result 
+        return sorted(result)
+    
+class GIANTMIDI(PianoRollAudioDataset):
+    def __init__(self, path, groups=None, sequence_length=None, seed=42, device=DEVICE):
+        super().__init__(path, groups if groups is not None else ['train'], sequence_length, seed, device)
+
+    @classmethod
+    def available_groups(cls):
+        return ['train', 'validation', 'test']
+
+    def files(self, group):
+        midis = sorted(glob(os.path.join(self.path, 'midis', '*.mid')) + glob(os.path.join(self.path, 'midis', '*.midi')))
+        
+        rng = np.random.RandomState(42)
+        rng.shuffle(midis)
+        
+        train_split = int(0.8 * len(midis))
+        val_split = int(0.9 * len(midis))
+        
+        if group == 'train':
+            midis = midis[:train_split]
+        elif group == 'validation':
+            midis = midis[train_split:val_split]
+        elif group == 'test':
+            midis = midis[val_split:]
+        elif group == 'all':
+            pass
+        else:
+            raise ValueError(f"Unknown group: {group}")
+        
+        result = []
+        for midi_path in midis:
+            basename = os.path.splitext(os.path.basename(midi_path))[0]
+            audio_path = os.path.join(self.path, 'wav', f"{basename}.wav")
+            result.append((audio_path, midi_path))
+            
+        return sorted(result)
+    

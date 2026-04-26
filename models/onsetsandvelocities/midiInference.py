@@ -12,14 +12,15 @@ from torchaudio.transforms import MelSpectrogram as TorchMelSpec, AmplitudeToDB
 
 from models.onsetsandvelocities.ov import OnsetsAndVelocities
 from models.onsetsandvelocities.inference import strided_inference, OnsetVelocityNmsDecoder
-from preprocessing.constants import DATA_PATH, N_KEYS
+from preprocessing.constants import DATA_PATH, GIANTMIDI_DATA_PATH, HOP_LENGTH, MEL_FMAX, MEL_FMIN, N_KEYS, N_MELS, SAMPLE_RATE, WINDOW_LENGTH
+from preprocessing.mel import MelSpectrogram
 
-OV_SAMPLE_RATE = 16000
-OV_WINDOW_LENGTH = 2048
-OV_HOP_LENGTH = 384
-OV_N_MELS = 229
-OV_MEL_FMIN = 50
-OV_MEL_FMAX = 8000
+OV_SAMPLE_RATE = SAMPLE_RATE
+OV_WINDOW_LENGTH = WINDOW_LENGTH
+OV_HOP_LENGTH = HOP_LENGTH
+OV_N_MELS = N_MELS
+OV_MEL_FMIN = MEL_FMIN
+OV_MEL_FMAX = MEL_FMAX
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 CONV1X1_HEAD: List[int] = (200, 200)
@@ -305,13 +306,13 @@ def inference(model_path, save_midi=True, show_plot=True):
         vel_pad_right=1
     ).to(DEVICE)
 
-    mel_extractor = TorchWavToLogmel(
-        samplerate=OV_SAMPLE_RATE,
-        winsize=OV_WINDOW_LENGTH,
-        hopsize=OV_HOP_LENGTH,
+    mel_extractor = MelSpectrogram(
+        sample_rate=OV_SAMPLE_RATE,
+        window_length=OV_WINDOW_LENGTH,
+        hop_length=OV_HOP_LENGTH,
         n_mels=OV_N_MELS,
-        mel_fmin=OV_MEL_FMIN,
-        mel_fmax=OV_MEL_FMAX
+        fmin=OV_MEL_FMIN,
+        fmax=OV_MEL_FMAX
     ).to(DEVICE)
 
     audio, triple_onsets, audio_path = load_random_test_audio(DATA_PATH)
@@ -319,7 +320,7 @@ def inference(model_path, save_midi=True, show_plot=True):
     # Extract mel: TorchWavToLogmel expects 1D or (chans, time)
     with torch.no_grad():
         mel = mel_extractor(audio)          # (n_mels, t)
-        mel = mel.unsqueeze(0)              # (1, n_mels, t) for strided_inference
+        mel = mel.reshape(1, OV_N_MELS, -1)
 
     print(f"Mel shape: {mel.shape}")
     print(f"Mel range: {mel.min().item():.2f} to {mel.max().item():.2f} dB")
@@ -396,7 +397,7 @@ if __name__ == "__main__":
     model_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
     MODEL_PATH = os.path.join(
         model_dir,
-        'OnsetsAndVelocities_2023_03_04_09_53_53.289step=43500_f1=0.9675__0.9480.pt')
+        'OnsetsAndVelocities-maestro-260424-164512-epoch=10.pt')
 
     print("--- OnsetsAndVelocities Inference ---")
     df = inference(MODEL_PATH, save_midi=True, show_plot=True)
