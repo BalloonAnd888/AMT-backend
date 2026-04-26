@@ -12,16 +12,16 @@ from tqdm import tqdm
 
 from models.onsetsandvelocities.ov import OnsetsAndVelocities
 from models.onsetsandvelocities.inference import strided_inference, OnsetVelocityNmsDecoder
-from preprocessing.constants import N_KEYS, DATA_PATH
+from preprocessing.constants import N_KEYS, DATA_PATH, SAMPLE_RATE, WINDOW_LENGTH, HOP_LENGTH, N_MELS, MEL_FMAX, MEL_FMIN
 from preprocessing.mel import MelSpectrogram
 from models.onsetsandvelocities.evaluate import threshold_eval_single_file
 
-OV_SAMPLE_RATE = 16000
-OV_WINDOW_LENGTH = 2048
-OV_HOP_LENGTH = 384
-OV_N_MELS = 229
-OV_MEL_FMIN = 50
-OV_MEL_FMAX = 8000
+OV_SAMPLE_RATE = SAMPLE_RATE
+OV_WINDOW_LENGTH = WINDOW_LENGTH
+OV_HOP_LENGTH = HOP_LENGTH
+OV_N_MELS = N_MELS
+OV_MEL_FMIN = MEL_FMIN
+OV_MEL_FMAX = MEL_FMAX
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 CONV1X1_HEAD: List[int] = (200, 200)
@@ -227,7 +227,7 @@ def evaluate(model_path, data_path=DATA_PATH, save_path=None):
         the_table.set_fontsize(10)
         the_table.scale(1.2, 1.5)
 
-        image_path = os.path.join(save_path, 'evaluation_results.png')
+        image_path = os.path.join(save_path, 'evaluation_results-maestro.png')
         plt.savefig(image_path, bbox_inches='tight', dpi=300)
         print(f"\nEvaluation table saved to {image_path}")
         plt.close(fig)
@@ -236,7 +236,7 @@ if __name__ == "__main__":
     model_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
     MODEL_PATH = os.path.join(
         model_dir,
-        'OnsetsAndVelocities_epoch=10.pt')
+        'OnsetsAndVelocities-maestro-260424-164512-epoch=10.pt')
 
     results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'results')
     os.makedirs(results_dir, exist_ok=True)
