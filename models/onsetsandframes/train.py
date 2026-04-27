@@ -15,7 +15,7 @@ from models.utils.constants import DEVICE
 from models.onsetsandframes.utils import summary, cycle
 from preprocessing.constants import MAPS_DATA_PATH, MAX_MIDI, MIN_MIDI, N_MELS, SEQUENCE_LENGTH, DATA_PATH, GIANTMIDI_DATA_PATH
 
-ITERATIONS = 50000
+ITERATIONS = 5000 # 50000
 CHECKPOINT_INTERVAL = 1000
 
 BATCH_SIZE = 8

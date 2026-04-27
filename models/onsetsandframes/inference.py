@@ -153,8 +153,9 @@ if __name__ == "__main__":
     model_dir = os.path.join(current_dir, "models")
     audio_dir = os.path.abspath(os.path.join(current_dir, '..', '..', 'audio'))
 
-    MODEL_PATH = os.path.join(model_dir, 'onsetsandframes-maestro-260423-233108-50000.pt')
+    MODEL_PATH = os.path.join(model_dir, 'onsetsandframes-giantmidi-260424-174752-50000.pt')
     
     audio_path = os.path.join(audio_dir, 'route1.wav')
     
     inference(MODEL_PATH, audio_path)
+    # inference(MODEL_PATH)
