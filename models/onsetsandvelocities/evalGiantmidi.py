@@ -229,7 +229,7 @@ def evaluate(model_path, data_path=GIANTMIDI_DATA_PATH, save_path=None):
         the_table.set_fontsize(10)
         the_table.scale(1.2, 1.5)
 
-        image_path = os.path.join(save_path, 'evaluation_results-giantmidi.png')
+        image_path = os.path.join(save_path, 'evaluation_results-giantmidi-epoch=10.png')
         plt.savefig(image_path, bbox_inches='tight', dpi=300)
         print(f"\nEvaluation table saved to {image_path}")
         plt.close(fig)

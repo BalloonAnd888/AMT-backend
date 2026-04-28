@@ -4,6 +4,7 @@ from preprocessing.constants import *
 
 def parse_midi(path):
     try:
+        pretty_midi.pretty_midi.MAX_TICK = 1e10
         midi = pretty_midi.PrettyMIDI(path)
     except Exception as e:
         print(f"Error loading MIDI {path}: {e}")

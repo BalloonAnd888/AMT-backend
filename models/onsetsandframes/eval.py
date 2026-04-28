@@ -26,9 +26,9 @@ def evaluate(model_path, onset_threshold=0.5, frame_threshold=0.5, save_path=Non
 
     # Load test dataset
     # test_dataset = MAESTRO(path=DATA_PATH, groups=['test'], sequence_length=SEQUENCE_LENGTH)
-    # test_dataset = MAPS(path=MAPS_DATA_PATH, groups=['test'], sequence_length=SEQUENCE_LENGTH)
-    test_dataset = GIANTMIDI(path=GIANTMIDI_DATA_PATH, groups=['test'], sequence_length=SEQUENCE_LENGTH)
-    dataset = 'giantmidi'
+    test_dataset = MAPS(path=MAPS_DATA_PATH, groups=['test'], sequence_length=SEQUENCE_LENGTH)
+    # test_dataset = GIANTMIDI(path=GIANTMIDI_DATA_PATH, groups=['test'], sequence_length=SEQUENCE_LENGTH)
+    dataset = 'maps'
     epoch = '10000'
 
     if len(test_dataset) == 0:
@@ -186,7 +186,7 @@ def evaluate(model_path, onset_threshold=0.5, frame_threshold=0.5, save_path=Non
 
 if __name__ == "__main__":
     MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "modelFiles")
-    MODEL_PATH = os.path.join(MODEL_DIR, "onsetsandframes-giantmidi-260426-184059-10000.pt")
+    MODEL_PATH = os.path.join(MODEL_DIR, "onsetsandframes-maps-260424-132117-10000.pt")
     results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'results')
     os.makedirs(results_dir, exist_ok=True)
     evaluate(MODEL_PATH, save_path=results_dir)
