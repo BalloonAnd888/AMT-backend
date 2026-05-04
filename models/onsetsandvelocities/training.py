@@ -349,7 +349,7 @@ if __name__ == "__main__":
 
     log("CONFIG", vars(CONF))
 
-    dataset = "giantmidi" # "maestro", "maps", "giantmidi"
+    dataset = "maestro" # "maestro", "maps", "giantmidi"
 
     # ------------------------------------------------------------------
     # Mel extractor (GPU)
@@ -382,11 +382,11 @@ if __name__ == "__main__":
         print("Loading validation dataset...")
         xv_dataset = GIANTMIDI(path=CONF.GIANTMIDI_DATA_PATH, groups=['validation'], sequence_length=None, device='cpu')
 
-    train_size = len(train_dataset) // 10 #
-    train_dataset = Subset(train_dataset, range(train_size)) #
+    # train_size = len(train_dataset) // 10 #
+    # train_dataset = Subset(train_dataset, range(train_size)) #
 
-    val_size = len(xv_dataset) // 10
-    xv_dataset = Subset(xv_dataset, range(val_size))
+    # val_size = len(xv_dataset) // 10
+    # xv_dataset = Subset(xv_dataset, range(val_size))
 
     collate_fn = make_collate_fn()
 

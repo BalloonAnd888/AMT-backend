@@ -348,7 +348,7 @@ if __name__ == "__main__":
     model_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
     MODEL_PATH = os.path.join(
         model_dir,
-        'OnsetsAndVelocities-giantmidi-260426-123320-epoch=10.pt')
+        'OnsetsAndVelocities_step=12000_f1=0.8814_t=0.8.pt')
 
     print("--- OnsetsAndVelocities Inference with Custom Audio File ---")
 

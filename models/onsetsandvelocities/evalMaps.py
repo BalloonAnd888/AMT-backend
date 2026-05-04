@@ -123,8 +123,10 @@ def evaluate(model_path, data_path=MAPS_DATA_PATH, save_path=None):
     for audio_path, midi_path in tqdm(test_files, total=len(test_files), desc="Evaluating"):
         if not os.path.exists(audio_path) or not os.path.exists(midi_path):
             continue
-
+        
         tsv_path = midi_path.rsplit('.', 1)[0] + '.tsv'
+        txt_path = midi_path.rsplit('.', 1)[0] + '.txt'
+        
         if os.path.exists(tsv_path):
             gt_data = np.loadtxt(tsv_path, delimiter='\t', skiprows=1)
             if len(gt_data) == 0:
@@ -132,13 +134,27 @@ def evaluate(model_path, data_path=MAPS_DATA_PATH, save_path=None):
             gt_onsets = gt_data[:, 0]
             gt_keys = gt_data[:, 2]
             gt_vels = gt_data[:, 3] / 127.0
-        else:
-            parsed_notes = parse_midi(midi_path)
-            if not parsed_notes:
+        elif os.path.exists(txt_path):
+            gt_data = np.loadtxt(txt_path, delimiter='\t', skiprows=1)
+            if len(gt_data) == 0:
                 continue
-            gt_onsets = np.array([n.start for n in parsed_notes])
-            gt_keys = np.array([n.pitch for n in parsed_notes])
-            gt_vels = np.array([n.velocity / 127.0 for n in parsed_notes])
+            gt_onsets = gt_data[:, 0]
+            gt_keys = gt_data[:, 2]
+            if gt_data.shape[1] > 3:
+                gt_vels = gt_data[:, 3] / 127.0
+            else:
+                gt_vels = np.zeros_like(gt_keys)
+        else:
+            try:
+                parsed_notes = parse_midi(midi_path)
+                if not parsed_notes:
+                    continue
+                gt_onsets = np.array([n.start for n in parsed_notes])
+                gt_keys = np.array([n.pitch for n in parsed_notes])
+                gt_vels = np.array([n.velocity / 127.0 for n in parsed_notes])
+            except Exception as e:
+                print(f"Error loading MIDI {midi_path}: {e}")
+                continue
 
         try:
             audio, _ = librosa.load(audio_path, sr=OV_SAMPLE_RATE, mono=True)
@@ -229,7 +245,7 @@ def evaluate(model_path, data_path=MAPS_DATA_PATH, save_path=None):
         the_table.set_fontsize(10)
         the_table.scale(1.2, 1.5)
 
-        image_path = os.path.join(save_path, 'evaluation_results-maps.png')
+        image_path = os.path.join(save_path, 'evaluation_results-maps-epoch=50.png')
         plt.savefig(image_path, bbox_inches='tight', dpi=300)
         print(f"\nEvaluation table saved to {image_path}")
         plt.close(fig)
@@ -238,10 +254,11 @@ if __name__ == "__main__":
     model_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
     MODEL_PATH = os.path.join(
         model_dir,
-        'OnsetsAndVelocities-maps-260425-145735-epoch=10.pt')
+        'OnsetsAndVelocities-maps-260428-002141-epoch=50.pt')
 
     results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'results')
     os.makedirs(results_dir, exist_ok=True)
 
     print("--- OnsetsAndVelocities Evaluation on MAPS ---")
     evaluate(MODEL_PATH, save_path=results_dir)
+    
