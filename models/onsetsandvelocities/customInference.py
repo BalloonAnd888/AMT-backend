@@ -51,31 +51,6 @@ TICK_SIZE: int = 25
 # MIDI constants
 MIN_MIDI = 21  # MIDI note number of piano key 0 (A0)
 
-class TorchWavToLogmel(torch.nn.Module):
-    """
-    Matches the TorchWavToLogmel used during training in ov_piano/utils.py.
-    Uses torchaudio MelSpectrogram + AmplitudeToDB(top_db=80).
-    """
-    def __init__(self, samplerate, winsize, hopsize, n_mels,
-                 mel_fmin=50, mel_fmax=8000):
-        super().__init__()
-        self.melspec = TorchMelSpec(
-            samplerate, winsize, hop_length=hopsize,
-            f_min=mel_fmin, f_max=mel_fmax, n_mels=n_mels,
-            power=2, window_fn=torch.hann_window)
-        self.to_db = AmplitudeToDB(stype="power", top_db=80.0)
-        # Must run once to avoid NaNs on first real call
-        self.melspec(torch.rand(winsize * 10))
-
-    def forward(self, wav_arr):
-        """
-        :param wav_arr: 1D float tensor or (chans, time)
-        :returns: log-mel spectrogram of shape (n_mels, t)
-        """
-        mel = self.melspec(wav_arr)
-        log_mel = self.to_db(mel)
-        return log_mel
-
 def load_model(model, path, eval_phase=True):
     """Load model weights from checkpoint."""
     state_dict = torch.load(path, map_location=DEVICE)

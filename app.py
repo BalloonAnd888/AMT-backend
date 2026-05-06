@@ -14,7 +14,7 @@ import numpy as np
 import tempfile
 from mir_eval.util import midi_to_hz
 from preprocessing.mel import MelSpectrogram
-from preprocessing.constants import SAMPLE_RATE, HOP_LENGTH, N_MELS, N_KEYS, MIN_MIDI
+from preprocessing.constants import MEL_FMAX, MEL_FMIN, SAMPLE_RATE, HOP_LENGTH, N_MELS, N_KEYS, MIN_MIDI, WINDOW_LENGTH
 from models.onsetsandframes.of import OnsetsAndFrames
 from models.onsetsandframes.decoding import extract_notes
 from models.onsetsandframes.midi import save_midi
@@ -25,12 +25,12 @@ from models.onsetsandvelocities.inference import strided_inference, OnsetVelocit
 
 MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "modelFiles")
 
-OV_MODEL_PATH = os.path.join(MODEL_DIR, "OnsetsAndVelocities_2023_03_04_09_53_53.289step=43500_f1=0.9675__0.9480.pt")
+OV_MODEL_PATH = os.path.join(MODEL_DIR, "OnsetsAndVelocities_step=12000_f1=0.8814_t=0.8.pt")
 ETE_MODEL_PATH = os.path.join(MODEL_DIR, "ete_model_20260203_195050.pt")
 HIGH_RESOLUTION_PATH = os.path.join(MODEL_DIR,
 "note_F1=0.9677_pedal_F1=0.9186.pt")
 OF_MODEL_PATH = os.path.join(MODEL_DIR,
-"onsetsandframes-260209-204911-5000.pt")
+"onsetsandframes-maestro-260423-233108-50000.pt")
 
 MODELS = {
     "ov": {
@@ -41,10 +41,10 @@ MODELS = {
         "name": "OnsetsAndFrames",
         "path": OF_MODEL_PATH,
     },
-    "endtoend": {
-        "name": "EndToEnd",
-        "path": ETE_MODEL_PATH,
-    },
+    # "endtoend": {
+    #     "name": "EndToEnd",
+    #     "path": ETE_MODEL_PATH,
+    # },
     "high_resolution": {
         "name": "HighResolution",
         "path": HIGH_RESOLUTION_PATH,
@@ -89,12 +89,12 @@ def process_audio(audio_path, model_choice):
     model_path = MODELS[model_choice]["path"]
     
     if model_choice == "ov":
-        OV_SAMPLE_RATE = 16000
-        OV_WINDOW_LENGTH = 2048
-        OV_HOP_LENGTH = 384
-        OV_N_MELS = 229
-        OV_MEL_FMIN = 50
-        OV_MEL_FMAX = 8000
+        OV_SAMPLE_RATE = SAMPLE_RATE
+        OV_WINDOW_LENGTH = WINDOW_LENGTH
+        OV_HOP_LENGTH = HOP_LENGTH
+        OV_N_MELS = N_MELS
+        OV_MEL_FMIN = MEL_FMIN
+        OV_MEL_FMAX = MEL_FMAX
 
         DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
         CONV1X1_HEAD: List[int] = (200, 200)
@@ -111,30 +111,6 @@ def process_audio(audio_path, model_choice):
         CHUNK_SIZE = round(INFERENCE_CHUNK_SIZE / SECS_PER_FRAME)
         CHUNK_OVERLAP = round(INFERENCE_CHUNK_OVERLAP / SECS_PER_FRAME)
 
-        class TorchWavToLogmel(torch.nn.Module):
-            """
-            Matches the TorchWavToLogmel used during training in ov_piano/utils.py.
-            Uses torchaudio MelSpectrogram + AmplitudeToDB(top_db=80).
-            """
-            def __init__(self, samplerate, winsize, hopsize, n_mels,
-                        mel_fmin=50, mel_fmax=8000):
-                super().__init__()
-                self.melspec = TorchMelSpec(
-                    samplerate, winsize, hop_length=hopsize,
-                    f_min=mel_fmin, f_max=mel_fmax, n_mels=n_mels,
-                    power=2, window_fn=torch.hann_window)
-                self.to_db = AmplitudeToDB(stype="power", top_db=80.0)
-                # Must run once to avoid NaNs on first real call
-                self.melspec(torch.rand(winsize * 10))
-
-            def forward(self, wav_arr):
-                """
-                :param wav_arr: 1D float tensor or (chans, time)
-                :returns: log-mel spectrogram of shape (n_mels, t)
-                """
-                mel = self.melspec(wav_arr)
-                log_mel = self.to_db(mel)
-                return log_mel
 
         def load_model(model, path, eval_phase=True):
             """Load model weights from checkpoint."""
@@ -217,13 +193,13 @@ def process_audio(audio_path, model_choice):
             vel_pad_right=1
         ).to(DEVICE)
 
-        mel_extractor = TorchWavToLogmel(
-            samplerate=OV_SAMPLE_RATE,
-            winsize=OV_WINDOW_LENGTH,
-            hopsize=OV_HOP_LENGTH,
+        mel_extractor = MelSpectrogram(
+            sample_rate=OV_SAMPLE_RATE,
+            window_length=OV_WINDOW_LENGTH,
+            hop_length=OV_HOP_LENGTH,
             n_mels=OV_N_MELS,
-            mel_fmin=OV_MEL_FMIN,
-            mel_fmax=OV_MEL_FMAX
+            fmin=OV_MEL_FMIN,
+            fmax=OV_MEL_FMAX
         ).to(DEVICE)
 
         print(f"Loading audio from: {audio_path}")
@@ -234,7 +210,7 @@ def process_audio(audio_path, model_choice):
         triple_onsets = None # Ground truth not available for arbitrary custom audio files
         with torch.no_grad():
             mel = mel_extractor(audio)       
-            mel = mel.unsqueeze(0)              
+            mel = mel.reshape(1, OV_N_MELS, -1)
 
         print(f"Mel shape: {mel.shape}")
         print(f"Mel range: {mel.min().item():.2f} to {mel.max().item():.2f} dB")
