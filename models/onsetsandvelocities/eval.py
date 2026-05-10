@@ -227,7 +227,7 @@ def evaluate(model_path, data_path=DATA_PATH, save_path=None):
         the_table.set_fontsize(10)
         the_table.scale(1.2, 1.5)
 
-        image_path = os.path.join(save_path, 'evaluation_results-maestro-epoch=15.png')
+        image_path = os.path.join(save_path, 'evaluation_results-maestro-epoch=50-step=12000_f1=0.8814_t=0.8.png')
         plt.savefig(image_path, bbox_inches='tight', dpi=300)
         print(f"\nEvaluation table saved to {image_path}")
         plt.close(fig)
@@ -236,7 +236,7 @@ if __name__ == "__main__":
     model_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
     MODEL_PATH = os.path.join(
         model_dir,
-        'OnsetsAndVelocities-maestro-260427-182233-epoch=15.pt')
+        'OnsetsAndVelocities_step=12000_f1=0.8814_t=0.8.pt')
 
     results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'results')
     os.makedirs(results_dir, exist_ok=True)
