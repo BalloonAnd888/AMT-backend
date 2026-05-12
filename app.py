@@ -45,10 +45,10 @@ MODELS = {
     #     "name": "EndToEnd",
     #     "path": ETE_MODEL_PATH,
     # },
-    "high_resolution": {
-        "name": "HighResolution",
-        "path": HIGH_RESOLUTION_PATH,
-    },
+    # "high_resolution": {
+    #     "name": "HighResolution",
+    #     "path": HIGH_RESOLUTION_PATH,
+    # },
 }
 
 def get_models():
